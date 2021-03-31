@@ -18,10 +18,7 @@ fig2= px.bar()
 (styles, legend) = discrete_background_color_bins(dfCurrentRoom.iloc[:,1:])
 app = dash.Dash(__name__)
 
-
-
-app.layout = html.Div(children=[
-        dash_table.DataTable(
+gradeTable = dash_table.DataTable(
             id='table',
             columns=[{"name": i, "id": i} for i in dfCurrentRoom.columns],
             data=dfCurrentRoom.to_dict('records'),
@@ -38,15 +35,14 @@ app.layout = html.Div(children=[
             sort_mode="multi",
             column_selectable="single",
     style_data_conditional=styles
-            ),
-        html.Div(children=[
-            html.H1(id='studentName'),
-                dash_table.DataTable(
+            )
+
+personalTable = dash_table.DataTable(
                 id='studentPersonal',
                 columns=[{"name": i, "id":i} for i in dfPersonal.columns],
                 data=dfPersonal.to_dict('records'),
-                fixed_rows={'headers': True},
-                style_table={'height': '300px'},
+                # fixed_rows={'headers': True},
+                style_table={ 'display':'inline-block', 'width':'33%'},
                 style_cell={'textAlign': 'center',
                             'border': '1px solid grey'},
                 style_header={
@@ -57,13 +53,17 @@ app.layout = html.Div(children=[
                 sort_action="native",
                 sort_mode="multi",
                 column_selectable="single",
-                style_data_conditional=styles,
-                ),
-                
+                style_data_conditional=styles)
 
-            dcc.Graph(id="polarPlot", style={'display': 'inline-block'}),
-            dcc.Graph(id="barPlot", style={'display': 'inline-block'})
-            ])
+polarGraph = dcc.Graph(id="polarPlot", style={'display': 'inline-block', 'width':'33%'})
+barGraph = dcc.Graph(id="barPlot", style={'display': 'inline-block', 'width':'33%'})
+
+app.layout = html.Div(children=[
+    html.Div([gradeTable]),
+        html.Div(children=[
+            personalTable,
+            polarGraph,
+            barGraph])
         ])
 
 @app.callback(
