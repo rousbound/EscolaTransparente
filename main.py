@@ -75,6 +75,23 @@ def updateMultiPolar(active_cell, selectedTrimester, table_data):
 
     return multiPolar
 
+@app.callback(
+        Output('studentLinePlot', 'figure'),
+        Input('table', 'active_cell'),
+        State('table', 'data'))
+def updateStudentLine(active_cell,table_data):
+    row = active_cell['row'] 
+    dfConcat = pd.DataFrame()
+    for el in list(dfs[currentRoom].values())[:-1]:
+        dfConcat = pd.concat([dfConcat,el.iloc[row]], axis=1)
+
+    dfConcat = dfConcat.transpose().set_index("Estudante").set_axis(["1º Trimestre","2º Trimestre","3º Trimestre"], axis='index')
+
+    studentLinePlot = px.line(dfConcat,
+        color_discrete_sequence = px.colors.qualitative.Dark24)
+    studentLinePlot.update_traces(line=dict(width=4))
+
+    return studentLinePlot
 
 @app.callback(
         Output('multiPolar', 'figure'),

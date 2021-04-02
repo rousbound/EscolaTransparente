@@ -53,6 +53,11 @@ personalTable = dash_table.DataTable(
         column_selectable="single",
         style_data_conditional=styles)
 
+
+
+
+studentLinePlot = dcc.Graph(id = "studentLinePlot", style={'width':"50%"})
+
 plotLineGraph = px.line(dfs[currentRoom]['Média por Trimestre'].iloc[:,1:], color_discrete_sequence = px.colors.qualitative.Dark24)
 plotLineGraph.update_traces(line=dict(width=4))
 barGraph = dcc.Graph(id="barPlot", style={'display': 'inline-block', 'width':'33%', 'margin-bottom':'25px'})
@@ -121,10 +126,18 @@ app.layout = html.Div(children=[
                 html.Div(personalTable, className = 'five columns'),
                 html.Div([multiPolarGraph,html.Div(dropdown3,
                     style={
+                        'margin-top':'-50px',
                         'margin-left': '160px',
                         'margin-right': 'auto'})],
                     className = 'five columns'),
-                html.Button("Voltar", id='closeStudent', n_clicks=0)
-                ])], style={'display':'inline'}),
+                html.Button("Voltar", id='closeStudent', n_clicks=0),
+                ]
+                ),
+            html.Center(studentLinePlot,
+                style={'margin-left':'auto',
+                    'margin-right':'auto'}
+                                            
+                )
+            ], style={'display':'inline'}),
 
             ])
