@@ -77,8 +77,11 @@ def save_xls(list_dfs, xls_path):
                 df.set_index("Estudante").to_excel(writer,'%sT' % (n+1), index_label=0)
 
     # dfMeans.index = "Trimestres"
-    dfMeans.to_excel(writer,'Média por Trimestre')
     print(dfMeans)
+    dfMeans.index.name = 'Trimestres'
+    # dfMeans = dfMeans.set_index("Trimestres")
+    dfMeans.to_excel(writer,'Média por Trimestre')
+
     writer.save()
 
 save_xls([df3201_1T, df3201_2T, df3201_3T], dataPath + "3201.xlsx")
