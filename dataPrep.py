@@ -59,5 +59,29 @@ mean1 = df3202_1T.mean(axis=0,skipna=True)
 mean2 = df3202_2T.mean(axis=0,skipna=True)
 mean3 = df3202_3T.mean(axis=0,skipna=True)
 
-df3202_Y = pd.concat([mean1,mean2,mean3],axis=1).transpose().set_axis(['1º Trimestre', '2º Trimestre', '3º Trimestre'],axis=0)
+
+def getDfMean(lDf):
+    means = []
+    for el in lDf:
+        means.append(el.mean(axis=0,skipna=True))
+    dfMean = pd.concat([means[0],means[1],means[2]],axis=1).transpose().set_axis(['1º Trimestre', '2º Trimestre', '3º Trimestre'],axis=0)
+    return dfMean
+
+    
+
+from pandas import ExcelWriter
+def save_xls(list_dfs, xls_path):
+    dfMeans = getDfMean(list_dfs)
+    with ExcelWriter(xls_path) as writer:
+        for n, df in enumerate(list_dfs):
+                df.set_index("Estudante").to_excel(writer,'%sT' % (n+1), index_label=0)
+
+    # dfMeans.index = "Trimestres"
+    dfMeans.to_excel(writer,'Média por Trimestre')
+    print(dfMeans)
+    writer.save()
+
+save_xls([df3201_1T, df3201_2T, df3201_3T], dataPath + "3201.xlsx")
+save_xls([df3202_1T, df3202_2T, df3202_3T], dataPath + "3202.xlsx")
+
 

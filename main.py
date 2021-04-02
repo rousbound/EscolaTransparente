@@ -5,36 +5,52 @@ import dash_core_components as dcc
 from dash.dependencies import Input, Output, State
 import plotly.express as px
 import plotly.graph_objects as go
-
+import pandas as pd
 from colorTableHandling import *
-from dataPrep import *
+# from dataPrep import *
 
 buttonCount = 0
+dataPath = "data/"
 
 alunoSelected = ""
 
 external_stylesheets = ['assets/style.css']
 
-dfCurrentRoom = df3201_1T
+
+dfPersonal = pd.read_csv(dataPath + "personal.csv", sep = ";")
+df3201 = pd.read_excel(dataPath + "3201.xlsx", sheet_name=None)
+df3202 = pd.read_excel(dataPath + "3202.xlsx", sheet_name=None)
+print("df3201:",df3201['1T'])
+
+dfs = {'3201':df3201,'3202':df3202}
+
+currentRoom = "3201"
+currentTrimester = "1T"
 
 fig = px.line_polar()
 fig2= px.bar()
 multiPolar = go.Figure()
 
-(styles, legend) = discrete_background_color_bins(dfCurrentRoom.iloc[:,1:])
+(styles, legend) = discrete_background_color_bins(dfs[currentRoom][currentTrimester].iloc[:,1:])
 app = dash.Dash(__name__,external_stylesheets = external_stylesheets)
 
 gradeTable = dash_table.DataTable(
         id='table',
-        columns=[{"name": i, "id": i} for i in dfCurrentRoom.columns],
-        data=dfCurrentRoom.to_dict('records'),
+        columns=[{"name": i, "id": i} for i in dfs[currentRoom][currentTrimester].columns],
+        data=dfs[currentRoom][currentTrimester].to_dict('records'),
         fixed_rows={'headers': False},
-        style_table={'height': '300px', 'overflowY': 'auto'},
+        style_table={'height': '300px',
+            'overflowY': 'auto',
+            'margin-left' : '20px',
+            # 'margin-right' : '30px'
+            },
         style_cell={'textAlign': 'center',
-            'border': '1px solid grey'},
+            'border': '1px solid grey',
+            'fontWeight': 'bold'
+            },
         style_header={
             'backgroundColor': 'white',
-            'width': '90px'
+            'width': '60px'
             },
 
         editable=False,
@@ -57,6 +73,7 @@ personalTable = dash_table.DataTable(
             'border': '1px solid grey'},
         style_header={
             'backgroundColor': 'white',
+            'width': '50px',
             },
 
         editable=False,
@@ -65,11 +82,13 @@ personalTable = dash_table.DataTable(
         column_selectable="single",
         style_data_conditional=styles)
 
-
+plotLineGraph = px.line(dfs[currentRoom]['Média por Trimestre'].iloc[:,1:], color_discrete_sequence = px.colors.qualitative.Dark24)
+plotLineGraph.update_traces(line=dict(width=4))
 barGraph = dcc.Graph(id="barPlot", style={'display': 'inline-block', 'width':'33%', 'margin-bottom':'25px'})
 multiPolarGraph = dcc.Graph(id="multiPolar", style={'display': 'inline-block', 'width':'50%'})
-lineGraph = dcc.Graph(figure = px.line(df3201_Y),
+lineGraph = dcc.Graph(figure = plotLineGraph,
         id="linePlot", style={'display': 'inline-block', 'width':'50%', 'margin-left':'450px', 'margin-right':'100px'})
+
 
 dropdown = dcc.Dropdown(
         id='dropdown',
@@ -94,79 +113,81 @@ dropdown2 = dcc.Dropdown(
         placeholder= "Escolha o Trimestre",
         style={'float': 'left','width':'200px'}
         )
+dropdown3 = dcc.Dropdown(
+        id='dropdown3',
+        options=[
+            {'label': '1º Trimestre', 'value': '1T'},
+            {'label': '2º Trimestre', 'value': '2T'},
+            {'label': '3º Trimestre', 'value': '3T'}
+
+            ],
+        value=None,
+        placeholder= "Escolha o Trimestre",
+        style={'float': 'left','width':'200px'}
+        )
 
 
 alunoHeader = html.H1("",id="alunoSelected",
         style={'margin-top':'50px',
-            'margin-left':'230px',
-            'margin-bottom':'-50px'})
+            # 'margin-left':'230px',
+            # 'margin-bottom':'-50px',
+            'text-align':'center'})
 
-# linePlot = px.line(df3201_Y)
+        # LAYOUT
 
 app.layout = html.Div(children=[
     html.Div([dropdown,
         dropdown2],
         className = 'row',
-        style = {"margin-bottom":"30px", "margin-top":"30px"}),
-    html.Div([gradeTable]),
-    html.Div(id = "studentGraphs", children=[
-        alunoHeader,
-        html.Div( className = 'row',children=[
-            html.Div(personalTable, className = 'five columns'),
-            html.Div(multiPolarGraph, className = 'five columns'),
-            html.Button("Fechar", id='closeStudent', n_clicks=0)
-            ])], style={'display':'inline'}),
-    lineGraph
+        style = {
+            "margin-left":"30px",
+            "margin-bottom":"30px",
+            "margin-top":"30px"}),
+        html.Div([gradeTable,lineGraph], id = "gradeTable"),
+        html.Div(id = "studentGraphs", children=[
+            alunoHeader,
+            html.Div( className = 'row',children=[
+                html.Div(personalTable, className = 'five columns'),
+                html.Div([multiPolarGraph,html.Div(dropdown3,
+                    style={
+                        'margin-left': '160px',
+                        'margin-right': 'auto'})],
+                    className = 'five columns'),
+                html.Button("Voltar", id='closeStudent', n_clicks=0)
+                ])], style={'display':'inline'}),
 
-        ])
+            ])
 
-sRoomMean = dfCurrentRoom.iloc[:,1:].mean()
-
-@app.callback(Output('studentGraphs', 'style'),
-        [Input('closeStudent', 'n_clicks'),
-            Input('table', 'active_cell')])
+@app.callback([Output('studentGraphs', 'style'),
+    Output('gradeTable', 'style')],
+    [Input('closeStudent', 'n_clicks'),
+        Input('table', 'active_cell')])
 def studentGraphHandler(btn, active_cell):
     global buttonCount
+    print(active_cell)
+    print(btn,buttonCount)
     if btn == buttonCount:
         buttonCount += 1
-        return {'display':'none'}
+        print("Hiding studentGraphs")
+        return {'display':'none'}, {'display':'block'}
     elif active_cell != None:
-        return {'display': 'block'}
+        print("Displaying studentGraphs")
+        return {'display': 'block'},{'display':'none'}
 
 @app.callback(
-        Output('table', 'data'),
+        [Output('table', 'data'), Output('dropdown3','value'), Output('linePlot','figure')],
         [Input('dropdown', 'value'), Input('dropdown2', 'value')])
-def update_table(value1,value2):
-    global dfCurrentRoom
-    if value1 == "3201":
-        if value2 == "1T":
-            dfCurrentRoom = df3201_1T
-        elif value2 == "2T":
-            dfCurrentRoom = df3201_2T
-        elif value2 == "3T":
-            dfCurrentRoom = df3201_3T
-    elif value1 == "3202":
-        if value2 == "1T":
-            dfCurrentRoom = df3202_1T
-        elif value2 == "2T":
-            dfCurrentRoom = df3202_2T
-        elif value2 == "3T":
-            dfCurrentRoom = df3202_3T
+def update_table(selectedRoom,selectedTrimester):
+    global currentRoom
+    global currentTrimester
+    currentRoom = selectedRoom
+    currentTrimester = selectedTrimester
 
-    return dfCurrentRoom.to_dict('records')
+    plotLineGraph = px.line(dfs[currentRoom]['Média por Trimestre'].iloc[:,1:], color_discrete_sequence = px.colors.qualitative.Dark24)
+    plotLineGraph.update_traces(line=dict(width=4))
 
-@app.callback(
-        Output('barPlot', 'figure'),
-        [Input('table', 'active_cell')],
-        [State('table', 'data')])
-def update_figure2(active_cell, table_data):
-    row = active_cell['row'] 
-    notasEstudante = pd.to_numeric(dfCurrentRoom.iloc[row].iloc[1:])
-    dfBar = pd.concat([notasEstudante,sRoomMean],axis=1).set_axis(['Média do Estudante','Média da Turma'],axis=1)
-    fig2 = px.bar(dfBar, width=800, height=500,range_y=[0,10], labels=True, barmode="group")
-    fig2.update_layout(transition_duration=500)
+    return dfs[currentRoom][currentTrimester].to_dict('records'), {'value':selectedTrimester}, plotLineGraph
 
-    return fig2
 
 def closeLine(s):
     l = s.tolist()
@@ -180,8 +201,8 @@ def closeLine(s):
         [State('table', 'data')])
 def updateAlunoSelected(active_cell,table_data):
     row = active_cell['row'] 
-    name = dfCurrentRoom.iloc[row].iloc[0]
-    return f"Aluno: {name}"
+    name = dfs[currentRoom][currentTrimester].iloc[row].iloc[0]
+    return f"{name}"
 
 
 @app.callback(
@@ -190,9 +211,12 @@ def updateAlunoSelected(active_cell,table_data):
         [State('table', 'data')])
 def update_figure3(active_cell, table_data):
     row = active_cell['row'] 
+    global currentTrimester
     multiPolar = go.Figure()
 
-    labels = dfCurrentRoom.columns[1:]
+    labels = dfs[currentRoom]['Média por Trimestre'].columns[1:]
+    sRoomMean = dfs[currentRoom]['Média por Trimestre'].iloc[int(currentTrimester[:1])-1].iloc[1:]
+    print(sRoomMean)
 
     multiPolar.add_trace(go.Scatterpolar(
         r=closeLine(sRoomMean),
@@ -204,7 +228,7 @@ def update_figure3(active_cell, table_data):
         ))
 
     multiPolar.add_trace(go.Scatterpolar(
-        r=closeLine(dfCurrentRoom.iloc[row].iloc[1:]),
+        r=closeLine(dfs[currentRoom][currentTrimester].iloc[row].iloc[1:]),
         theta=closeLine(labels),
         fillcolor='blue',
         marker=dict(color = 'blue'),
