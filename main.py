@@ -31,9 +31,13 @@ def dropdownClickHandler(selectedRoom,selectedTrimester):
     plotLineGraph.update_traces(line=dict(width=4))
 
     returnTableData = dfs[currentRoom][currentTrimester].to_dict('records')
-    print(selectedTrimester)
     
     return  returnTableData, selectedTrimester, plotLineGraph
+
+def closeLine(s):
+    l = s.tolist()
+    l.append(l[0])
+    return l
 
 def updateMultiPolar(active_cell, selectedTrimester, table_data):
     row = active_cell['row'] 
@@ -75,6 +79,50 @@ def updateMultiPolar(active_cell, selectedTrimester, table_data):
 
     return multiPolar
 
+def updateMultiPolar2(active_cell, table_data):
+    row = active_cell['row'] 
+    global currentTrimester
+    multiPolar2 = go.Figure()
+
+    # labels = dfs[currentRoom]['Gostos pessoais'].loc[:,'Tempo de deslocamento diário':'Tempo investido em séries semanalmente'].columns
+    labels = ['Deslocamento','Esportes','Jogos','Leitura(lazer)','Séries/Televisão', 'Deslocamento']
+    sRoomMean = dfs[currentRoom]['Gostos pessoais'].loc[:,'Tempo de deslocamento diário':'Tempo investido em séries semanalmente'].mean()
+    print(sRoomMean)
+    sGostos = dfs[currentRoom]['Gostos pessoais'].iloc[row].loc['Tempo de deslocamento diário':'Tempo investido em séries semanalmente']
+    print(sGostos)
+
+    multiPolar2.add_trace(go.Scatterpolar(
+        r=closeLine(sRoomMean),
+        theta=labels,
+        fillcolor='red',
+        marker=dict(color='red'),
+        opacity=0.5,
+        name='Média da Turma'
+        ))
+
+    multiPolar2.add_trace(go.Scatterpolar(
+        r=closeLine(sGostos),
+        theta=labels,
+        fillcolor='blue',
+        marker=dict(color = 'blue'),
+        opacity=0.7,
+        name=f"Aluno"
+        ))
+
+
+    multiPolar2.update_layout(
+            width=600, height=600,
+            autosize=False,
+            polar=dict(
+                radialaxis=dict(
+                    visible=True
+                    # range=[0, 10]
+                    )),
+                showlegend=True
+                )
+
+    return multiPolar2
+
 @app.callback(
         Output('studentLinePlot', 'figure'),
         Input('table', 'active_cell'),
@@ -82,7 +130,7 @@ def updateMultiPolar(active_cell, selectedTrimester, table_data):
 def updateStudentLine(active_cell,table_data):
     row = active_cell['row'] 
     dfConcat = pd.DataFrame()
-    for el in list(dfs[currentRoom].values())[:-1]:
+    for el in list(dfs[currentRoom].values())[:-2]:
         dfConcat = pd.concat([dfConcat,el.iloc[row]], axis=1)
 
     dfConcat = dfConcat.transpose().set_index("Estudante").set_axis(["1º Trimestre","2º Trimestre","3º Trimestre"], axis='index')
@@ -104,12 +152,17 @@ def tableClickHandler(active_cell, selectedTrimester, selectedTrimester2, table_
         trimester = selectedTrimester2
     return updateMultiPolar(active_cell, selectedTrimester2, table_data)
 
+@app.callback(
+        Output('studentPersonalPolar', 'figure'),
+        Input('table', 'active_cell'),
+        State('table', 'data'))
+def personalInfoHandler(active_cell, table_data):
+    fig = updateMultiPolar2(active_cell,table_data)
+
+    return fig
 
 
-def closeLine(s):
-    l = s.tolist()
-    l.append(l[0])
-    return l
+
 
 
 @app.callback(

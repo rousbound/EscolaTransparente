@@ -31,32 +31,33 @@ gradeTable = dash_table.DataTable(
         style_data_conditional=styles
         )
 
-personalTable = dash_table.DataTable(
-        id='studentPersonal',
-        columns=[{"name": i, "id":i} for i in dfPersonal.columns],
-        data=dfPersonal.to_dict('records'),
-        # fixed_rows={'headers': True},
-        style_table={ 'display':'inline-block',
-            'width':'50%',
-            'margin-top':'150px',
-            'margin-left': '300px'},
-        style_cell={'textAlign': 'center',
-            'border': '1px solid grey'},
-        style_header={
-            'backgroundColor': 'white',
-            'width': '50px',
-            },
+# personalTable = dash_table.DataTable(
+        # id='studentPersonal',
+        # columns=[{"name": i, "id":i} for i in dfs[currentRoom]['Gostos pessoais'].iloc[0,:].to_frame().columns],
+            # data=dfs[currentRoom]['Gostos pessoais'].iloc[0,:].to_frame().to_dict('records'),
+        # # fixed_rows={'headers': True},
+        # style_table={ 'display':'inline-block',
+            # 'width':'50%',
+            # 'margin-top':'150px',
+            # 'margin-left': '300px'},
+        # style_cell={'textAlign': 'center',
+            # 'border': '1px solid grey'},
+        # style_header={
+            # 'backgroundColor': 'white',
+            # 'width': '50px',
+            # },
 
-        editable=False,
-        sort_action="native",
-        sort_mode="multi",
-        column_selectable="single",
-        style_data_conditional=styles)
+        # editable=False,
+        # sort_action="native",
+        # sort_mode="multi",
+        # column_selectable="single",
+        # style_data_conditional=styles)
 
 
 
 
 studentLinePlot = dcc.Graph(id = "studentLinePlot", style={'width':"50%"})
+studentPersonalPolar = dcc.Graph(id = "studentPersonalPolar", style={'width':"50%"})
 
 plotLineGraph = px.line(dfs[currentRoom]['Média por Trimestre'].iloc[:,1:], color_discrete_sequence = px.colors.qualitative.Dark24)
 plotLineGraph.update_traces(line=dict(width=4))
@@ -123,7 +124,8 @@ app.layout = html.Div(children=[
         html.Div(id = "studentGraphs", children=[
             alunoHeader,
             html.Div( className = 'row',children=[
-                html.Div(personalTable, className = 'five columns'),
+                html.Div(studentPersonalPolar, className= 'five columns',
+                    style = {'margin-left':'300px'}),
                 html.Div([multiPolarGraph,html.Div(dropdown3,
                     style={
                         'margin-top':'-50px',

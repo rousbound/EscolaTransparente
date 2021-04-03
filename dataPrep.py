@@ -67,24 +67,25 @@ def getDfMean(lDf):
     dfMean = pd.concat([means[0],means[1],means[2]],axis=1).transpose().set_axis(['1º Trimestre', '2º Trimestre', '3º Trimestre'],axis=0)
     return dfMean
 
-    
+df3201_personal = pd.read_csv(dataPath + "3201_personal.csv",sep=";")
+df3202_personal = pd.read_csv(dataPath + "3202_personal.csv",sep=";")
 
 from pandas import ExcelWriter
 def save_xls(list_dfs, xls_path):
     dfMeans = getDfMean(list_dfs)
     with ExcelWriter(xls_path) as writer:
-        for n, df in enumerate(list_dfs):
+        for n, df in enumerate(list_dfs[:-1]):
+                df = df.sort_values(by='Estudante')
                 df.set_index("Estudante").to_excel(writer,'%sT' % (n+1), index_label=0)
 
-    # dfMeans.index = "Trimestres"
     print(dfMeans)
     dfMeans.index.name = 'Trimestres'
-    # dfMeans = dfMeans.set_index("Trimestres")
     dfMeans.to_excel(writer,'Média por Trimestre')
+    list_dfs[-1].to_excel(writer, "Gostos pessoais")
 
     writer.save()
 
-save_xls([df3201_1T, df3201_2T, df3201_3T], dataPath + "3201.xlsx")
-save_xls([df3202_1T, df3202_2T, df3202_3T], dataPath + "3202.xlsx")
+save_xls([df3201_1T, df3201_2T, df3201_3T, df3201_personal], dataPath + "3201.xlsx")
+save_xls([df3202_1T, df3202_2T, df3202_3T, df3201_personal], dataPath + "3202.xlsx")
 
 
