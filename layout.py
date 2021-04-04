@@ -1,5 +1,7 @@
 from imports import *
 from overhead import *
+import flask
+import base64
 
 (styles, legend) = discrete_background_color_bins(dfs[currentRoom][currentTrimester].iloc[:,1:])
 external_stylesheets = ['assets/style.css']
@@ -55,12 +57,13 @@ gradeTable = dash_table.DataTable(
 
 
 
-
-studentLinePlot = dcc.Graph(id = "studentLinePlot", style={'width':"50%"})
-studentPersonalPolar = dcc.Graph(id = "studentPersonalPolar", style={'width':"50%"})
-
 plotLineGraph = px.line(dfs[currentRoom]['Média por Trimestre'].iloc[:,1:], color_discrete_sequence = px.colors.qualitative.Dark24)
 plotLineGraph.update_traces(line=dict(width=4))
+
+studentLinePlot = dcc.Graph(id = "studentLinePlot", style={'width':"100%",
+    'margin-top':'80px'})
+studentPersonalPolar = dcc.Graph(id = "studentPersonalPolar", style={'width':"50%"})
+
 barGraph = dcc.Graph(id="barPlot", style={'display': 'inline-block', 'width':'33%', 'margin-bottom':'25px'})
 multiPolarGraph = dcc.Graph(id="multiPolar", style={'display': 'inline-block', 'width':'50%'})
 lineGraph = dcc.Graph(figure = plotLineGraph,
@@ -76,7 +79,7 @@ dropdown = dcc.Dropdown(
             ],
         value = "3201",
         placeholder= "Escolha a Turma",
-        style={'float': 'left', 'width':'200px'}
+        style={'float': 'left', 'width':'200px', 'margin-right':'10px'}
         )
 dropdown2 = dcc.Dropdown(
         id='dropdown2',
@@ -104,13 +107,14 @@ dropdown3 = dcc.Dropdown(
         )
 
 
-alunoHeader = html.H1("",id="alunoSelected",
-        style={'margin-top':'50px',
-            # 'margin-left':'230px',
-            # 'margin-bottom':'-50px',
-            'text-align':'center'})
+alunoHeader = html.Center(html.H1("",id="alunoSelected",
+    style={'margin-top':'50px',
+        # 'margin-left':'230px',
+        # 'margin-bottom':'-50px',
+        #'text-align':'center'
+        }))
 
-        # LAYOUT
+    # LAYOUT
 
 app.layout = html.Div(children=[
     html.Div([dropdown,
@@ -120,26 +124,59 @@ app.layout = html.Div(children=[
             "margin-left":"30px",
             "margin-bottom":"30px",
             "margin-top":"30px"}),
+        # Room
         html.Div([gradeTable,lineGraph], id = "gradeTable"),
         html.Div(id = "studentGraphs", children=[
             alunoHeader,
-            html.Div( className = 'row',children=[
-                html.Div(studentPersonalPolar, className= 'five columns',
-                    style = {'margin-left':'300px'}),
-                html.Div([multiPolarGraph,html.Div(dropdown3,
-                    style={
-                        'margin-top':'-50px',
-                        'margin-left': '160px',
-                        'margin-right': 'auto'})],
-                    className = 'five columns'),
-                html.Button("Voltar", id='closeStudent', n_clicks=0),
-                ]
+            html.Div(
+                html.Button("<< Voltar", id='closeStudent', n_clicks=0),
+                style={#'float':'right',
+                    'margin-left':'160px',
+                    'margin-bottom':'50px'
+                    }
                 ),
-            html.Center(studentLinePlot,
-                style={'margin-left':'auto',
-                    'margin-right':'auto'}
-                                            
+            html.Div(
+                html.Center(
+                    html.Img(src=app.get_asset_url('student.jpg'),
+                        style={'width':'10%','height':'10%'}
+                        ),
+                    style={'display':'block',
+                        'margin-bottom': '100px',
+                        'margin-top':'100px'})
+                    ),
+            html.Div( # Student
+                className = 'row',children=[
+                    html.Div([
+                        html.Center(html.H2("Acadêmico"), style={'margin-bottom':'-100px'}),
+                        html.Div(
+                            [multiPolarGraph,html.Div(dropdown3,
+                                style={
+                                    'margin-top':'-50px',
+                                    'margin-left': '170px',
+                                    })],
+                                className = 'five columns',
+                                style={'margin-left':'300px'}
+                                ),
+                        html.Div(
+                            html.Center(studentLinePlot,
+                                style={
+                                    'margin-right': '260px',
+                                    'margin-left': '-200px'
+                                    }
+                                ),
+                            className= 'five columns'
+                            )],style={
+                                # 'margin-left':'-100px'
+                                }
+                        ),
+                    
+                    ]
+                ),
+                html.Div([
+                html.Center(html.H2("Pessoal"), style={'margin-bottom':'-100px'}),
+                html.Div(studentPersonalPolar, style={'display':'block', 'margin-left':'300px'})
+                ], style={'display':'block','margin-top':'80px'}
                 )
-            ], style={'display':'inline'}),
 
             ])
+        ])
