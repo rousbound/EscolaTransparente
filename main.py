@@ -8,11 +8,11 @@ from layout import *
         Input('table', 'active_cell')])
 def studentGraphHandler(btn, active_cell):
     global buttonCount
-    if btn == buttonCount:
-        buttonCount += 1
-        return {'display':'none'}, {'display':'block'}
-    elif active_cell != None:
-        return {'display': 'block'},{'display':'none'}
+    # if btn == buttonCount:
+        # buttonCount += 1
+        # return {'display':'none'}, {'display':'block'}
+    # elif active_cell != None:
+        # return {'display': 'block'},{'display':'none'}
     pass
 
 @app.callback(
@@ -31,6 +31,7 @@ def dropdownClickHandler(selectedRoom,selectedTrimester):
     plotLineGraph.update_traces(line=dict(width=4))
 
     returnTableData = dfs[currentRoom][currentTrimester].to_dict('records')
+    print("Updating table data")
     
     return  returnTableData, selectedTrimester, plotLineGraph
 
@@ -174,6 +175,13 @@ def updateAlunoSelected(active_cell,table_data):
     name = dfs[currentRoom][currentTrimester].iloc[row].iloc[0]
     return f"{name}"
 
-
+@app.callback(Output('tabOutput', 'children'),
+              Input('tabHandler', 'value'))
+def renderTabContent(tab):
+    if tab == 'room':
+        return lineGraph
+    elif tab == 'student':
+        return studentDetail
+        
 if __name__ == '__main__':
     app.run_server(debug=True)
