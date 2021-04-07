@@ -4,18 +4,6 @@ from layout import *
 
 DEBUG = True
 
-@app.callback([Output('studentGraphs', 'style'),
-    Output('gradeTable', 'style')],
-    [Input('closeStudent', 'n_clicks'),
-        Input('table', 'active_cell')])
-def studentGraphHandler(btn, active_cell):
-    global buttonCount
-    # if btn == buttonCount:
-        # buttonCount += 1
-        # return {'display':'none'}, {'display':'block'}
-    # elif active_cell != None:
-        # return {'display': 'block'},{'display':'none'}
-    pass
 
 @app.callback(
         [Output('table', 'data'), Output('dropdown3','value'), Output('linePlot','figure')],
@@ -150,11 +138,18 @@ def updateStudentLine(active_cell,table_data):
         Input('table', 'active_cell'),
         Input('dropdown2', 'value'),
         Input('dropdown3', 'value'),
-        State('table', 'data'))
-def tableClickHandler(active_cell, selectedTrimester, selectedTrimester2, table_data):
+        State('tabHandler', 'value'),
+        State('table', 'data'),
+        )
+def tableClickHandler(active_cell, selectedTrimester, selectedTrimester2,  tabValue, table_data):
     if selectedTrimester != selectedTrimester2:
         trimester = selectedTrimester2
-    return updateMultiPolar(active_cell, selectedTrimester2, table_data), 'student'
+    if tabValue == 'room':
+        tabreturn = 'student'
+    else:
+        tabreturn = tabValue
+
+    return updateMultiPolar(active_cell, selectedTrimester2, table_data), tabreturn
 
 @app.callback(
         Output('studentPersonalPolar', 'figure'),
@@ -178,13 +173,13 @@ def updateAlunoSelected(active_cell,table_data):
     name = dfs[currentRoom][currentTrimester].iloc[row].iloc[0]
     return f"{name}"
 
-@app.callback(Output('tabOutput', 'children'),
-              Input('tabHandler', 'value'))
-def renderTabContent(tab):
-    if tab == 'room':
-        return lineGraph
-    elif tab == 'student':
-        return studentDetail
+# @app.callback(Output('tabOutput', 'children'),
+              # Input('tabHandler', 'value'))
+# def renderTabContent(tab):
+    # if tab == 'room':
+        # return lineGraph
+    # elif tab == 'student':
+        # return studentDetail
         
 if __name__ == '__main__':
     app.run_server(debug=DEBUG, host='0.0.0.0')

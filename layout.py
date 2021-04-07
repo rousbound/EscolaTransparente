@@ -167,14 +167,18 @@ studentDetail = html.Div(style = {}, children=[
                     
                     ]
                 ),
-                html.Div([
-                html.Center(html.H2("Pessoal"), style={'margin-bottom':'-100px'}),
-                html.Div(studentPersonalPolar, style={'display':'block', 'margin-left':'300px'})
-                ], style={'display':'block','margin-top':'80px'}
-                )
             ])
             ]
             )
+
+studentPersonal = html.Div([
+                # html.Center(html.H2("Pessoal"), style={}),
+                html.Div(studentPersonalPolar, style={'display':'block',
+                    'margin-left':'300px',
+                    # 'margin-top':'-30px'
+                    })
+                ], style={'display':'block'}
+                )
 
 app.layout = html.Div(children=[
     html.Div([dropdown,
@@ -191,8 +195,11 @@ app.layout = html.Div(children=[
                     dcc.Tab(label='Sala', value='room',
                         children = [html.Div(lineGraph, style={})]
                         ),
-                    dcc.Tab(label='Aluno', value='student',
+                    dcc.Tab(label='Aluno - Acadêmico', value='student',
                         children = [studentDetail]
+                        ),
+                    dcc.Tab(label='Aluno - Pessoal', value='studentPersonal',
+                        children = [studentPersonal]
                         )
                     ]
                 )
