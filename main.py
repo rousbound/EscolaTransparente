@@ -2,6 +2,8 @@ from imports import *
 from overhead import *
 from layout import *
 
+DEBUG = True
+
 @app.callback([Output('studentGraphs', 'style'),
     Output('gradeTable', 'style')],
     [Input('closeStudent', 'n_clicks'),
@@ -144,6 +146,7 @@ def updateStudentLine(active_cell,table_data):
 
 @app.callback(
         Output('multiPolar', 'figure'),
+        Output('tabHandler', 'value'),
         Input('table', 'active_cell'),
         Input('dropdown2', 'value'),
         Input('dropdown3', 'value'),
@@ -151,7 +154,7 @@ def updateStudentLine(active_cell,table_data):
 def tableClickHandler(active_cell, selectedTrimester, selectedTrimester2, table_data):
     if selectedTrimester != selectedTrimester2:
         trimester = selectedTrimester2
-    return updateMultiPolar(active_cell, selectedTrimester2, table_data)
+    return updateMultiPolar(active_cell, selectedTrimester2, table_data), 'student'
 
 @app.callback(
         Output('studentPersonalPolar', 'figure'),
@@ -184,4 +187,4 @@ def renderTabContent(tab):
         return studentDetail
         
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=DEBUG, host='0.0.0.0')
