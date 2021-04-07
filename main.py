@@ -134,14 +134,15 @@ def updateStudentLine(active_cell,table_data):
 
 @app.callback(
         Output('multiPolar', 'figure'),
-        Output('tabHandler', 'value'),
+        # Output('tabHandler', 'value'),
         Input('table', 'active_cell'),
         Input('dropdown2', 'value'),
         Input('dropdown3', 'value'),
+        Input('dropdown', 'value'),
         State('tabHandler', 'value'),
         State('table', 'data'),
         )
-def tableClickHandler(active_cell, selectedTrimester, selectedTrimester2,  tabValue, table_data):
+def tableClickHandler(active_cell, selectedTrimester, selectedTrimester2, selectedRoom, tabValue, table_data):
     if selectedTrimester != selectedTrimester2:
         trimester = selectedTrimester2
     if tabValue == 'room':
@@ -149,7 +150,7 @@ def tableClickHandler(active_cell, selectedTrimester, selectedTrimester2,  tabVa
     else:
         tabreturn = tabValue
 
-    return updateMultiPolar(active_cell, selectedTrimester2, table_data), tabreturn
+    return updateMultiPolar(active_cell, selectedTrimester2, table_data)
 
 @app.callback(
         Output('studentPersonalPolar', 'figure'),
