@@ -19,6 +19,7 @@ def discrete_background_color_bins(df, n_bins=9, columns='all'):
     ]
     styles = []
     legend = []
+    print("Bounds:", len(bounds))
     for i in range(1, len(bounds)):
         min_bound = ranges[i - 1]
         max_bound = ranges[i]
@@ -26,7 +27,8 @@ def discrete_background_color_bins(df, n_bins=9, columns='all'):
         # backgroundColor = colorlover.scales[str(n_bins)]['div']['RdYlBu'][i - 1]
         backgroundColor = colorlover.scales[str(n_bins)]['div']['RdYlGn'][i - 1]
         # backgroundColor = colorlover.scales[str(n_bins)]['seq']['Blues'][i - 1]
-        color = 'white' if i > len(bounds) / 2. else 'inherit'
+        #color = 'white' if i > len(bounds) / 5. else 'inherit'
+        color = 'white' if i > 7 else 'black'
 
         for column in df_numeric_columns:
             styles.append({

@@ -21,7 +21,6 @@ def dropdownClickHandler(selectedRoom,selectedTrimester):
     plotLineGraph.update_traces(line=dict(width=4))
 
     returnTableData = dfs[currentRoom][currentTrimester].to_dict('records')
-    print("Updating table data")
     
     return  returnTableData, selectedTrimester, plotLineGraph
 
@@ -33,7 +32,17 @@ def closeLine(s):
 def updateMultiPolar(active_cell, selectedTrimester, table_data):
     row = active_cell['row'] 
     global currentTrimester
-    multiPolar = go.Figure()
+
+    layoutPolar = go.Layout(
+            legend=dict(x=1,y=0.85),
+      margin=go.layout.Margin(
+            l=20, #left margin
+            r=0, #right margin
+            b=0, #bottom margin
+            t=0, #top margin
+        )
+    )
+    multiPolar = go.Figure(layout = layoutPolar)
 
     labels = dfs[currentRoom]['Média por Trimestre'].columns[1:]
     sRoomMean = dfs[currentRoom]['Média por Trimestre'].iloc[int(currentTrimester[:1])-1].iloc[1:]
@@ -57,9 +66,12 @@ def updateMultiPolar(active_cell, selectedTrimester, table_data):
         ))
 
 
+    # fig.update_traces(textposition="middle right")
+
     multiPolar.update_layout(
-            width=600, height=600,
+            width=500, height=500,
             autosize=False,
+            # legend_yanchor='middle',
             polar=dict(
                 radialaxis=dict(
                     visible=True,
@@ -78,9 +90,7 @@ def updateMultiPolar2(active_cell, table_data):
     # labels = dfs[currentRoom]['Gostos pessoais'].loc[:,'Tempo de deslocamento diário':'Tempo investido em séries semanalmente'].columns
     labels = ['Deslocamento','Esportes','Jogos','Leitura(lazer)','Séries/Televisão', 'Deslocamento']
     sRoomMean = dfs[currentRoom]['Gostos pessoais'].loc[:,'Tempo de deslocamento diário':'Tempo investido em séries semanalmente'].mean()
-    print(sRoomMean)
     sGostos = dfs[currentRoom]['Gostos pessoais'].iloc[row].loc['Tempo de deslocamento diário':'Tempo investido em séries semanalmente']
-    print(sGostos)
 
     multiPolar2.add_trace(go.Scatterpolar(
         r=closeLine(sRoomMean),
@@ -133,6 +143,27 @@ def updateStudentLine(active_cell,table_data):
     return studentLinePlot
 
 @app.callback(
+        Output('studentHybridPlot', 'figure'),
+        Input('table', 'active_cell'),
+        State('table', 'data'))
+def updateHybridPlot(active_cell,table_data):
+    nrow = active_cell['row'] 
+    srTrimesterMean = dfs[currentRoom]["Média por Trimestre"].iloc[int(currentTrimester[0])-1].iloc[1:]
+    dfStudent = dfs[currentRoom][currentTrimester].iloc[nrow,1:]
+    print(dfStudent.values)
+    print(dfStudent.index)
+
+    studentHybridPlot = px.bar(x=dfStudent.index,y=dfStudent.values,
+            labels=dict(x="Matérias", y="Nota"),
+        color_discrete_sequence = px.colors.qualitative.Dark24)
+
+    studentHybridPlot.add_trace(go.Scatter(x=srTrimesterMean.index,y=srTrimesterMean.values, mode="lines+markers", name="Média da turma"))
+    #studentLinePlot.update_traces(line=dict(width=4))
+
+    return studentHybridPlot
+
+
+@app.callback(
         Output('multiPolar', 'figure'),
         # Output('tabHandler', 'value'),
         Input('table', 'active_cell'),
@@ -183,4 +214,4 @@ def updateAlunoSelected(active_cell,table_data):
         # return studentDetail
         
 if __name__ == '__main__':
-    app.run_server(debug=DEBUG, host='0.0.0.0')
+    app.run_server(debug=DEBUG, host='0.0.0.0', port="8052")
