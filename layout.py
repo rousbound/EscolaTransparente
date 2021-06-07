@@ -16,7 +16,9 @@ gradeTable = dash_table.DataTable(
         columns=[{"name": i, "id": i} for i in dfs[currentRoom][currentTrimester].columns],
         data=dfs[currentRoom][currentTrimester].to_dict('records'),
         fixed_rows={'headers': False},
-        style_table={'height': '700px',
+        style_table={
+            'height': '300px',
+            # 'height': '700px',
             'overflowY': 'auto',
             'margin-left' : '20px',
             # 'margin-right' : '30px'
@@ -71,7 +73,7 @@ studentLinePlot = dcc.Graph(id = "studentLinePlot",
 studentPersonalPolar = dcc.Graph(id = "studentPersonalPolar",
                                 style={'width':"50%"})
 studentHybridPlot = dcc.Graph(id="studentHybridPlot",
-        style={})
+        style={'margin-left':'-90px'})
 
 barGraph = dcc.Graph(id="barPlot",
         style={'display': 'inline-block',
@@ -88,8 +90,8 @@ lineGraph = dcc.Graph(figure = plotLineGraph,
             'margin-right':'100px'})
 
 
-dropdown = dcc.Dropdown(
-        id='dropdown',
+roomDropdown = dcc.Dropdown(
+        id='roomDropdown',
         options=[
             {'label': 'Turma 3201', 'value': '3201'},
             {'label': 'Turma 3202', 'value': '3202'}
@@ -99,8 +101,8 @@ dropdown = dcc.Dropdown(
         placeholder= "Escolha a Turma",
         style={'float': 'left', 'width':'200px', 'margin-right':'10px'}
         )
-dropdown2 = dcc.Dropdown(
-        id='dropdown2',
+trimesterDropdown = dcc.Dropdown(
+        id='trimesterDropdown',
         options=[
             {'label': '1º Trimestre', 'value': '1T'},
             {'label': '2º Trimestre', 'value': '2T'},
@@ -111,8 +113,8 @@ dropdown2 = dcc.Dropdown(
         placeholder= "Escolha o Trimestre",
         style={'float': 'left','width':'200px'}
         )
-dropdown3 = dcc.Dropdown(
-        id='dropdown3',
+plotDropdown = dcc.Dropdown(
+        id='plotDropdown',
         options=[
             {'label': '1º Trimestre', 'value': '1T'},
             {'label': '2º Trimestre', 'value': '2T'},
@@ -158,22 +160,22 @@ studentDetail = html.Div(style = {}, children=[
                 html.Div([
                     # html.Center(html.H2("Acadêmico"), style={'margin-bottom':'-100px'}),
                     html.Div(
-                        [multiPolarGraph,html.Div(dropdown3,
+                        [studentHybridPlot,html.Div(plotDropdown,
                             style={
-                                'margin-top':'-50px',
-                                'margin-left': '95px',
+                                # 'margin-top':'-50px',
+                                'margin-left': '130px',
                                 })],
                             className = 'five columns',
-                            style={'margin-left':'300px',
-                                'margin-top':'30px'
+                            style={'margin-left':'200px',
+                                'margin-top':'10px'
                                 }
                             ),
                     html.Div(
                         html.Center(studentLinePlot,
                             style={
-                                'margin-top': '-20px',
-                                'margin-right': '260px',
-                                'margin-left': '-200px'
+                                'margin-top': '-60px',
+                                'margin-right': '100px',
+                                'margin-left': '-50px'
                                 }
                             ),
                         className= 'five columns'
@@ -200,8 +202,8 @@ studentPersonal = html.Div([
     )
 
 app.layout = html.Div(children=[
-    html.Div([dropdown,
-        dropdown2],
+    html.Div([roomDropdown,
+        trimesterDropdown],
         className = 'row',
         style = {
             "margin-left":"30px",

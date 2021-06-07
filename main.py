@@ -6,9 +6,9 @@ DEBUG = True
 
 
 @app.callback(
-        [Output('table', 'data'), Output('dropdown3','value'), Output('linePlot','figure')],
-        [Input('dropdown', 'value'), Input('dropdown2', 'value')])
-def dropdownClickHandler(selectedRoom,selectedTrimester):
+        [Output('table', 'data'), Output('plotDropdown','value'), Output('linePlot','figure')],
+        [Input('roomDropdown', 'value'), Input('trimesterDropdown', 'value')])
+def roomDropdownClickHandler(selectedRoom,selectedTrimester):
     global currentRoom
     global currentTrimester
     currentRoom = selectedRoom
@@ -19,6 +19,7 @@ def dropdownClickHandler(selectedRoom,selectedTrimester):
             dfPlotting,
             color_discrete_sequence = px.colors.qualitative.Dark24)
     plotLineGraph.update_traces(line=dict(width=4))
+    plotLineGraph.update_yaxis(range=[0,10])
 
     returnTableData = dfs[currentRoom][currentTrimester].to_dict('records')
     
@@ -145,20 +146,22 @@ def updateStudentLine(active_cell,table_data):
 @app.callback(
         Output('studentHybridPlot', 'figure'),
         Input('table', 'active_cell'),
+        Input('plotDropdown', 'value'),
         State('table', 'data'))
-def updateHybridPlot(active_cell,table_data):
+def updateHybridPlot(active_cell,trimesterFromDropdown,table_data):
+    trimester = trimesterFromDropdown if trimesterFromDropdown != currentTrimester else currentTrimester
+        
     nrow = active_cell['row'] 
-    srTrimesterMean = dfs[currentRoom]["Média por Trimestre"].iloc[int(currentTrimester[0])-1].iloc[1:]
-    dfStudent = dfs[currentRoom][currentTrimester].iloc[nrow,1:]
-    print(dfStudent.values)
-    print(dfStudent.index)
+    srTrimesterMean = dfs[currentRoom]["Média por Trimestre"].iloc[int(trimester[0])-1].iloc[1:]
+    dfStudent = dfs[currentRoom][trimester].iloc[nrow,1:]
 
     studentHybridPlot = px.bar(x=dfStudent.index,y=dfStudent.values,
             labels=dict(x="Matérias", y="Nota"),
         color_discrete_sequence = px.colors.qualitative.Dark24)
 
     studentHybridPlot.add_trace(go.Scatter(x=srTrimesterMean.index,y=srTrimesterMean.values, mode="lines+markers", name="Média da turma"))
-    #studentLinePlot.update_traces(line=dict(width=4))
+
+    studentHybridPlot.update_yaxes(range=[0,10])
 
     return studentHybridPlot
 
@@ -167,9 +170,9 @@ def updateHybridPlot(active_cell,table_data):
         Output('multiPolar', 'figure'),
         # Output('tabHandler', 'value'),
         Input('table', 'active_cell'),
-        Input('dropdown2', 'value'),
-        Input('dropdown3', 'value'),
-        Input('dropdown', 'value'),
+        Input('trimesterDropdown', 'value'),
+        Input('plotDropdown', 'value'),
+        Input('roomDropdown', 'value'),
         State('tabHandler', 'value'),
         State('table', 'data'),
         )
