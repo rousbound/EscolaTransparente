@@ -20,13 +20,13 @@
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 /* plotly.js's modebar's z-index is 1001 by default
  * https://github.com/plotly/plotly.js/blob/7e4d8ab164258f6bd48be56589dacd9bdd7fded2/src/css/_modebar.scss#L5
- * In case a roomDropdown is above the graph, the roomDropdown's options
+ * In case a tableRoomDropdown is above the graph, the tableRoomDropdown's options
  * will be rendered below the modebar
  * Increase the select option's z-index
  */
 
 /* This was actually not quite right -
-   roomDropdowns were overlapping each other (edited October 26)
+   tableRoomDropdowns were overlapping each other (edited October 26)
 
 .Select {
     z-index: 1002;

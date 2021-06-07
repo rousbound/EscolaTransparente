@@ -16,3 +16,18 @@ currentTrimester = "1T"
 fig = px.line_polar()
 fig2= px.bar()
 multiPolar = go.Figure()
+
+
+def dfGetTrimestersMeans(trimester):
+    dfTrimesterMeans = dfs[currentRoom]["Média por Trimestre"].set_index("Trimestres")
+    return dfTrimesterMeans
+
+def dfGetTrimester(trimester=currentTrimester):
+    dfTrimester = dfs[currentRoom][currentTrimester]
+    return dfTrimester
+
+
+def srGetStudentTrimester(trimester,nrow):
+    srStudentTrimester = dfs[currentRoom][trimester].iloc[nrow,1:]
+    return srStudentTrimester
+
