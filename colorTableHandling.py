@@ -19,7 +19,6 @@ def discrete_background_color_bins(df, n_bins=9, columns='all'):
     ]
     styles = []
     legend = []
-    print("Bounds:", len(bounds))
     for i in range(1, len(bounds)):
         min_bound = ranges[i - 1]
         max_bound = ranges[i]

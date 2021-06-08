@@ -4,26 +4,28 @@ import flask
 import base64
 
 tabs_styles = {
-        # 'height': '44px'
+        'height': '44px'
         }
 
-placeHolderInitialDf = dfGetTrimester(currentTrimester)
 (styles, legend) = discrete_background_color_bins(placeHolderInitialDf.iloc[:,1:])
 external_stylesheets = ['assets/style.css']
 app = dash.Dash(__name__,external_stylesheets = external_stylesheets)
+
+
+tableStyle = {
+            # 'height': '300px',
+            'height': '700px',
+            'overflowY': 'auto',
+            'margin-left' : '20px',
+            # 'margin-right' : '30px'
+            }
 
 gradeTable = dash_table.DataTable(
         id='table',
         columns=[{"name": i, "id": i} for i in placeHolderInitialDf.columns],
         data=placeHolderInitialDf.to_dict('records'),
         fixed_rows={'headers': False},
-        style_table={
-            'height': '300px',
-            # 'height': '700px',
-            'overflowY': 'auto',
-            'margin-left' : '20px',
-            # 'margin-right' : '30px'
-            },
+        style_table=tableStyle,
         style_cell={'textAlign': 'center',
             'border': '1px solid grey',
             'fontWeight': 'bold'
@@ -48,11 +50,19 @@ plotLineGraph.update_traces(line=dict(width=4))
 
 studentLinePlot = dcc.Graph(id = "studentLinePlot",
                             style={'width':"100%",
-                            'margin-top':'80px'})
+                            'margin-top':'80px'},
+                            config={
+                                    'displayModeBar': False
+                                }
+                            )
 studentPersonalPolar = dcc.Graph(id = "studentPersonalPolar",
                                 style={'width':"50%"})
 studentHybridPlot = dcc.Graph(id="studentHybridPlot",
-        style={'margin-left':'-90px'})
+        style={'margin-left':'-90px'},
+        config={
+                'displayModeBar': False
+            }
+        )
 
 barGraph = dcc.Graph(id="barPlot",
         style={'display': 'inline-block',
@@ -68,6 +78,8 @@ lineGraph = dcc.Graph(figure = plotLineGraph,
             'margin-left':'450px',
             'margin-right':'100px'})
 
+
+toggleViewButton = html.Button('Ocultar/Mostrar Tabela', id='ToggleView', n_clicks=1, style={'margin-left':'10px'})
 
 tableRoomDropdown = dcc.Dropdown(
         id='tableRoomDropdown',
@@ -108,7 +120,10 @@ plotTrimesterDropdown = dcc.Dropdown(
 
     # LAYOUT
 
-studentDetail = html.Div(style = {}, children=[
+studentDetail = html.Div(style = {
+                # 'margin-top':'-30px'
+                    }, 
+    children=[
     html.Div(id = "studentGraphs", children=[
         html.Div( # Student
             className = 'row',children=[
@@ -128,8 +143,8 @@ studentDetail = html.Div(style = {}, children=[
                         html.Center(studentLinePlot,
                             style={
                                 'margin-top': '-60px',
-                                'margin-right': '100px',
-                                'margin-left': '-50px'
+                                'margin-right': '20px',
+                                'margin-left': '-60px'
                                 }
                             ),
                         className= 'five columns'
@@ -155,7 +170,8 @@ studentPersonal = html.Div([
 
 app.layout = html.Div(children=[
     html.Div([tableRoomDropdown,
-        tableTrimesterDropdown],
+        tableTrimesterDropdown,
+        toggleViewButton],
         className = 'row',
         style = {
             "margin-left":"30px",

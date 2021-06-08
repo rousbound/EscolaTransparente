@@ -4,23 +4,17 @@ from layout import *
 
 DEBUG = True
 
-def dfGetTrimestersMeans(trimester):
-    dfTrimesterMeans = dfs[currentRoom]["Média por Trimestre"].set_index("Trimestres")
-    return dfTrimesterMeans
-
-def dfGetTrimester(trimester=currentTrimester):
-    dfTrimester = dfs[currentRoom][currentTrimester]
-    return dfTrimester
-
-
-def srGetStudentTrimester(trimester,nrow):
-    srStudentTrimester = dfs[currentRoom][trimester].iloc[nrow,1:]
-    return srStudentTrimester
+noMarginTop = go.Layout(margin={
+        # 'l':0,
+        # 'r':0,
+        't':0,
+        # 'b':0
+        })
 
 @app.callback(
         [Output('table', 'data'), Output('plotTrimesterDropdown','value'), Output('linePlot','figure')],
         [Input('tableRoomDropdown', 'value'), Input('tableTrimesterDropdown', 'value')])
-def tableRoomDropdownClickHandler(selectedRoom,selectedTrimester):
+def tableRoomDropdownClickHandler(selectedRoom, selectedTrimester):
     global currentRoom
     global currentTrimester
     currentRoom = selectedRoom
@@ -33,9 +27,27 @@ def tableRoomDropdownClickHandler(selectedRoom,selectedTrimester):
     plotLineGraph.update_traces(line=dict(width=4))
     plotLineGraph.update_yaxes(range=[0,10])
 
-    returnTableData = dfGetTrimester(currentTrimester).to_dict('records')
+    returnTableData = dfGetTrimester(currentRoom, currentTrimester).to_dict('records')
     
     return  returnTableData, selectedTrimester, plotLineGraph
+
+@app.callback(Output('table', 'style_table'),
+                #Input('table', 'active_cell'),
+                Input('ToggleView','n_clicks'))
+def toggleView(btn1):
+    global tableToggleVariable
+    print(btn1)
+    if btn1 != 1:
+        if tableToggleVariable:
+            tempTableStyle = tableStyle.copy()
+            tempTableStyle['height'] = '100px'
+            tableToggleVariable = False
+            return tempTableStyle
+        else:
+            tableToggleVariable = True
+            return tableStyle
+    else:
+        return tableStyle
 
 
 @app.callback(
@@ -56,6 +68,7 @@ def updateStudentLine(active_cell,table_data):
     studentLinePlot = px.line(dfConcat,
         color_discrete_sequence = px.colors.qualitative.Dark24)
     studentLinePlot.update_traces(line=dict(width=4))
+    studentLinePlot.update_layout(noMarginTop)
 
     return studentLinePlot
 
@@ -66,20 +79,67 @@ def updateStudentLine(active_cell,table_data):
         Input('plotTrimesterDropdown', 'value'),
         State('table', 'data'))
 def updateHybridPlot(active_cell,trimesterFromDropdown,table_data):
+    import random
     studentSelectedIndex = active_cell['row'] 
     trimester = trimesterFromDropdown if trimesterFromDropdown != currentTrimester else currentTrimester
 
-    srTrimesterMean = dfGetTrimestersMeans(trimester).loc[trimester].iloc[1:]
+    srTrimesterMean = dfGetTrimestersMeans(trimester).loc[trimester]
     srStudentTrimester = srGetStudentTrimester(trimester, studentSelectedIndex)
         
 
-    studentHybridPlot = px.bar(x=srStudentTrimester.index,y=srStudentTrimester.values,
-            labels=dict(x="Matérias", y="Nota"),
-        color_discrete_sequence = px.colors.qualitative.Dark24)
+    studentHybridPlot = make_subplots(specs=[[{"secondary_y": True}]])
+    studentHybridPlot.add_trace(go.Bar(x=srStudentTrimester.index,y=srStudentTrimester.values,
+        name="Nota do Aluno"
+        # color_discrete_sequence = px.colors.qualitative.Dark24)
+        ))
 
-    studentHybridPlot.add_trace(go.Scatter(x=srTrimesterMean.index,y=srTrimesterMean.values, mode="lines+markers", name="Média da turma"))
+    studentHybridPlot.add_trace(
+            go.Scatter(
+                x=srTrimesterMean.index,
+                y=srTrimesterMean.values,
+                mode="lines+markers",
+                name="Média da turma",
+                # marker=dict(
+                    # size=20,
+                    # line=dict(
+                    # width=5
+                    # )
+                # ),
+                line=dict(width=5)
+                )
+            )
 
+    studentHybridPlot.add_trace(
+            go.Scatter(
+                x=srTrimesterMean.index,
+                y=[random.randint(5,15) for x in range(len(srTrimesterMean.index))],
+                mode="lines+markers",
+                name="Faltas",
+                # marker=dict(line=dict(
+                    # width=1
+                    # )
+                # )
+                ),
+            secondary_y=True)
+    studentHybridPlot.add_trace(
+            go.Scatter(
+                x=srTrimesterMean.index,
+                y=[random.randint(5,15) for x in range(len(srTrimesterMean.index))],
+                mode="lines+markers",
+                name="Média de Faltas",
+                # marker=dict(line=dict(
+                    # width=1
+                    # )
+                # )
+                visible="legendonly"
+                ),
+            secondary_y=True)
+
+
+    studentHybridPlot.update_layout(noMarginTop)
     studentHybridPlot.update_yaxes(range=[0,10])
+    studentHybridPlot.update_yaxes(range=[0,20], secondary_y=True)
+
 
     return studentHybridPlot
 
