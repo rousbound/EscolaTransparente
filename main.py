@@ -36,7 +36,6 @@ def tableRoomDropdownClickHandler(selectedRoom, selectedTrimester):
                 Input('ToggleView','n_clicks'))
 def toggleView(btn1):
     global tableToggleVariable
-    print(btn1)
     if btn1 != 1:
         if tableToggleVariable:
             tempTableStyle = tableStyle.copy()
@@ -49,16 +48,42 @@ def toggleView(btn1):
     else:
         return tableStyle
 
+def switchStudentsButtonLogic(studentSelectedIndex, button_id, plotIdentifier):
+    global currentStudentIndex
+    global currentStudentOffset
+    if studentSelectedIndex != currentStudentIndex:
+        currentStudentOffset[plotIdentifier] = 0
+        currentStudentIndex = studentSelectedIndex
+    else:
+        if button_id == "previousStudentButton":
+            currentStudentOffset[plotIdentifier] -= 1
+        elif button_id == "nextStudentButton":
+            currentStudentOffset[plotIdentifier] += 1
+        studentSelectedIndex += currentStudentOffset[plotIdentifier]
+        studentSelectedIndex = max(studentSelectedIndex,0)
+        studentSelectedIndex = min(studentSelectedIndex,len(dfGetTrimester(currentRoom,currentTrimester))-1)
+    return studentSelectedIndex
 
 @app.callback(
         Output('studentLinePlot', 'figure'),
+        Input('nextStudentButton', 'n_clicks'),
+        Input('previousStudentButton', 'n_clicks'),
         Input('table', 'active_cell'),
         State('table', 'data'))
-def updateStudentLine(active_cell,table_data):
-    row = active_cell['row'] 
+def updateStudentLine(nextButton, prevButton, active_cell, table_data):
+    global currentStudentIndex
+    global currentStudentOffset
+
+    ctx = dash.callback_context
+    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    studentSelectedIndex = active_cell['row'] 
+    studentSelectedIndex = switchStudentsButtonLogic(studentSelectedIndex, button_id,1)
+    print(dfGetTrimester().iloc[studentSelectedIndex,0])
+
+
     dfConcat = pd.DataFrame()
     for df in list(dfs[currentRoom].values())[:3]: # Concat first three trimesters 
-        dfConcat = pd.concat([dfConcat,df.iloc[row]], axis=1)
+        dfConcat = pd.concat([dfConcat,df.iloc[studentSelectedIndex]], axis=1)
 
     dfConcat = dfConcat\
             .transpose()\
@@ -73,14 +98,20 @@ def updateStudentLine(active_cell,table_data):
     return studentLinePlot
 
 
+
 @app.callback(
         Output('studentHybridPlot', 'figure'),
+        Input('nextStudentButton', 'n_clicks'),
+        Input('previousStudentButton', 'n_clicks'),
         Input('table', 'active_cell'),
         Input('plotTrimesterDropdown', 'value'),
         State('table', 'data'))
-def updateHybridPlot(active_cell,trimesterFromDropdown,table_data):
-    import random
+def updateHybridPlot(nextButton, prevButton, active_cell,trimesterFromDropdown,table_data):
     studentSelectedIndex = active_cell['row'] 
+    ctx = dash.callback_context
+    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    studentSelectedIndex = switchStudentsButtonLogic(studentSelectedIndex, button_id,0)
+
     trimester = trimesterFromDropdown if trimesterFromDropdown != currentTrimester else currentTrimester
 
     srTrimesterMean = dfGetTrimestersMeans(trimester).loc[trimester]

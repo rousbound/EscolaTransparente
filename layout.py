@@ -49,8 +49,7 @@ plotLineGraph = px.line(placeHolderInitialDf.iloc[:,1:],
 plotLineGraph.update_traces(line=dict(width=4))
 
 studentLinePlot = dcc.Graph(id = "studentLinePlot",
-                            style={'width':"100%",
-                            'margin-top':'80px'},
+                            style={'width':"100%"},
                             config={
                                     'displayModeBar': False
                                 }
@@ -80,6 +79,10 @@ lineGraph = dcc.Graph(figure = plotLineGraph,
 
 
 toggleViewButton = html.Button('Ocultar/Mostrar Tabela', id='ToggleView', n_clicks=1, style={'margin-left':'10px'})
+
+nextStudentButton = html.Button('Próximo Aluno', id='nextStudentButton', n_clicks=1, style={'margin-left':'10px'})
+previousStudentButton = html.Button('Aluno Anterior', id='previousStudentButton', n_clicks=1, style={'margin-left':'10px'})
+
 
 tableRoomDropdown = dcc.Dropdown(
         id='tableRoomDropdown',
@@ -128,28 +131,28 @@ studentDetail = html.Div(style = {
         html.Div( # Student
             className = 'row',children=[
                 html.Div([
-                    html.Div(
-                        [studentHybridPlot,html.Div(plotTrimesterDropdown,
-                            style={
-                                # 'margin-top':'-50px',
-                                'margin-left': '130px',
-                                })],
+                    html.Center(
+                        [html.H3("Gráfico Híbrido",style={'text-align':'center'}),
+                            studentHybridPlot,
+                            html.Div(plotTrimesterDropdown)],
                             className = 'five columns',
                             style={'margin-left':'200px',
                                 'margin-top':'10px'
                                 }
                             ),
                     html.Div(
-                        html.Center(studentLinePlot,
+                        html.Center([
+                            html.H3("Gráfico de Linha", style={'text-align':'center'}),
+                            studentLinePlot],
                             style={
-                                'margin-top': '-60px',
+                                #'margin-top': '-60px',
+                                'margin-top':'30px',
                                 'margin-right': '20px',
                                 'margin-left': '-60px'
                                 }
                             ),
                         className= 'five columns'
                         )],style={
-                            # 'margin-left':'-100px'
                             'margin-top':'-0px'
                             }
                         ),
@@ -171,7 +174,10 @@ studentPersonal = html.Div([
 app.layout = html.Div(children=[
     html.Div([tableRoomDropdown,
         tableTrimesterDropdown,
-        toggleViewButton],
+        toggleViewButton,
+        previousStudentButton,
+        nextStudentButton
+        ],
         className = 'row',
         style = {
             "margin-left":"30px",

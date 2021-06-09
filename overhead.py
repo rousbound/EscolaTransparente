@@ -12,6 +12,8 @@ dfs = {'3201':df3201,'3202':df3202}
 
 currentRoom = "3201"
 currentTrimester = "1T"
+currentStudentOffset = [0,0]
+currentStudentIndex = -999
 
 
 tableToggleVariable = True
@@ -29,8 +31,6 @@ def dfGetTrimestersMeans(trimester):
 def dfGetTrimester(room=currentRoom, trimester=currentTrimester):
     global currentRoom
     global currentTrimester
-    print("CUrent room:", room)
-    print("CUrent trimester:", trimester)
     dfTrimester = dfs[room][trimester]
     return dfTrimester
 
