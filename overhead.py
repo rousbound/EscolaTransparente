@@ -24,7 +24,7 @@ multiPolar = go.Figure()
 nclicks = 0
 
 
-def dfGetTrimestersMeans(trimester):
+def dfGetTrimestersMeans(currentRoom):
     dfTrimesterMeans = dfs[currentRoom]["Média por Trimestre"].set_index("Trimestres")
     return dfTrimesterMeans
 

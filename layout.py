@@ -117,7 +117,7 @@ plotTrimesterDropdown = dcc.Dropdown(
             ],
         value='1T',
         placeholder= "Escolha o Trimestre",
-        style={'float': 'left','width':'200px'}
+        style={'float': 'center','width':'200px'}
         )
 
 
@@ -131,10 +131,10 @@ studentDetail = html.Div(style = {
         html.Div( # Student
             className = 'row',children=[
                 html.Div([
-                    html.Center(
+                    html.Div(
                         [html.H3("Gráfico Híbrido",style={'text-align':'center'}),
                             studentHybridPlot,
-                            html.Div(plotTrimesterDropdown)],
+                            plotTrimesterDropdown],
                             className = 'five columns',
                             style={'margin-left':'200px',
                                 'margin-top':'10px'

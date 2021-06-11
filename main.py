@@ -12,14 +12,16 @@ noMarginTop = go.Layout(margin={
         })
 
 @app.callback(
-        [Output('table', 'data'), Output('plotTrimesterDropdown','value'), Output('linePlot','figure')],
+        [Output('table', 'data'), Output('table','columns'), Output('plotTrimesterDropdown','value'), Output('linePlot','figure')],
         [Input('tableRoomDropdown', 'value'), Input('tableTrimesterDropdown', 'value')])
 def tableRoomDropdownClickHandler(selectedRoom, selectedTrimester):
     global currentRoom
     global currentTrimester
     currentRoom = selectedRoom
     currentTrimester = selectedTrimester
-    dfTrimestersMeans = dfGetTrimestersMeans(currentTrimester)
+    dfTrimestersMeans = dfGetTrimestersMeans(currentRoom)
+    print(currentRoom)
+    print(dfTrimestersMeans)
 
     plotLineGraph = px.line(
             dfTrimestersMeans,
@@ -27,9 +29,21 @@ def tableRoomDropdownClickHandler(selectedRoom, selectedTrimester):
     plotLineGraph.update_traces(line=dict(width=4))
     plotLineGraph.update_yaxes(range=[0,10])
 
-    returnTableData = dfGetTrimester(currentRoom, currentTrimester).to_dict('records')
+    sortedDf = dfTrimestersMeans\
+                    .loc[currentTrimester]\
+                    .sort_values(ascending=False)
+
+    sortedLabels = sortedDf.index.tolist()
+    print(sortedDf)
+    print(sortedLabels)
+
+    dfTable = dfGetTrimester(currentRoom, currentTrimester)[['Estudante'] + sortedLabels]
+    print(dfTable)
+    returnTableData = dfTable.to_dict('records')
     
-    return  returnTableData, selectedTrimester, plotLineGraph
+    columns = [{"name": i, "id": i} for i in dfTable.columns]
+
+    return  returnTableData, columns, selectedTrimester, plotLineGraph
 
 @app.callback(Output('table', 'style_table'),
                 #Input('table', 'active_cell'),
@@ -114,7 +128,7 @@ def updateHybridPlot(nextButton, prevButton, active_cell,trimesterFromDropdown,t
 
     trimester = trimesterFromDropdown if trimesterFromDropdown != currentTrimester else currentTrimester
 
-    srTrimesterMean = dfGetTrimestersMeans(trimester).loc[trimester]
+    srTrimesterMean = dfGetTrimestersMeans(currentRoom).loc[trimester]
     srStudentTrimester = srGetStudentTrimester(trimester, studentSelectedIndex)
         
 
