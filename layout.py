@@ -117,7 +117,7 @@ plotTrimesterDropdown = dcc.Dropdown(
             ],
         value='1T',
         placeholder= "Escolha o Trimestre",
-        style={'float': 'center','width':'200px'}
+        style={'float': 'center','width':'200px', 'margin-left':'40px'}
         )
 
 
@@ -132,11 +132,11 @@ studentDetail = html.Div(style = {
             className = 'row',children=[
                 html.Div([
                     html.Div(
-                        [html.H3("Gráfico Híbrido",style={'text-align':'center'}),
-                            studentHybridPlot,
+                        [html.H3("Gráfico Polar",style={'text-align':'center'}),
+                            multiPolarGraph,
                             plotTrimesterDropdown],
                             className = 'five columns',
-                            style={'margin-left':'200px',
+                            style={'margin-left':'300px',
                                 'margin-top':'10px'
                                 }
                             ),
@@ -171,6 +171,12 @@ studentPersonal = html.Div([
     ], style={'display':'block'}
     )
 
+alunoHeader = html.Div(style={'display':'inline-block'},
+                    children= [html.Img(src=app.get_asset_url('student.jpg'), style={'height':"10%",'width':"10%"}),
+                        html.H3("",id="studentSelectedName"),
+                        html.H3("",id="studentSelectedAge"),
+                        ])
+
 app.layout = html.Div(children=[
     html.Div([tableRoomDropdown,
         tableTrimesterDropdown,
@@ -191,7 +197,9 @@ app.layout = html.Div(children=[
                     children = [html.Div(lineGraph, style={})]
                     ),
                 dcc.Tab(label='Aluno - Acadêmico', value='student',
-                    children = [studentDetail]
+                    children = [
+                        #alunoHeader,
+                        studentDetail]
                     ),
                 dcc.Tab(label='Aluno - Pessoal', value='studentPersonal',
                     children = [studentPersonal]

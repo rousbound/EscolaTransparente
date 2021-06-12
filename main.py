@@ -11,6 +11,98 @@ noMarginTop = go.Layout(margin={
         # 'b':0
         })
 
+def closeLine(s):
+    l = s.tolist()
+    l.append(l[0])
+    return l
+
+@app.callback(
+        Output('studentSelectedName','children'),
+        Output('studentSelectedAge','children'),
+         Input('table', 'active_cell'),
+         Input('nextStudentButton', 'n_clicks'),
+         Input('previousStudentButton', 'n_clicks'),
+         )
+def updateStudentHeader(active_cell, nextButton, prevButton):
+    global currentStudentIndex
+    # studentSelectedIndex = active_cell['row'] if active_cell else 0
+    return dfGetTrimester(currentRoom, currentTrimester).iloc[currentStudentIndex,0], "23 Anos"
+
+
+
+
+@app.callback(
+        Output('multiPolar','figure'),
+        [Input('table', 'active_cell'),
+         Input('tableRoomDropdown', 'value'),
+         Input('tableTrimesterDropdown', 'value'),
+         Input('plotTrimesterDropdown', 'value'),
+         Input('nextStudentButton', 'n_clicks'),
+         Input('previousStudentButton', 'n_clicks'),
+         ])
+def updateMultiPolar(active_cell, selectedTrimester, table_data, trimesterFromDropdown, nextButton, prevButton):
+
+    studentSelectedIndex = active_cell['row'] if active_cell else 0
+    ctx = dash.callback_context
+    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    studentSelectedIndex = switchStudentsButtonLogic(studentSelectedIndex, button_id,0)
+
+    trimester = trimesterFromDropdown if trimesterFromDropdown != currentTrimester else currentTrimester
+
+    srTrimesterMean = dfGetTrimestersMeans(currentRoom).loc[trimester]
+    srStudentTrimester = srGetStudentTrimester(trimester, studentSelectedIndex)
+
+    labels = srStudentTrimester.index
+    sRoomMean = dfGetTrimestersMeans(currentRoom).loc[currentTrimester]
+
+
+    layoutPolar = go.Layout(
+            legend=dict(x=1,y=0.85),
+      margin=go.layout.Margin(
+            l=20, #left margin
+            r=0, #right margin
+            b=0, #bottom margin
+            t=0, #top margin
+        )
+    )
+    multiPolar = go.Figure(layout = layoutPolar)
+
+    multiPolar.add_trace(go.Scatterpolar(
+        r=closeLine(sRoomMean),
+        theta=closeLine(labels),
+        fillcolor='red',
+        marker=dict(color='red'),
+        opacity=0.5,
+        name='Média da Turma'
+        ))
+
+    multiPolar.add_trace(go.Scatterpolar(
+        r=closeLine(srStudentTrimester.values),
+        theta=closeLine(labels),
+        fillcolor='blue',
+        marker=dict(color = 'blue'),
+        opacity=0.7,
+        name=f"Notas do Aluno"
+        ))
+
+
+    # fig.update_traces(textposition="middle right")
+
+    multiPolar.update_layout(
+            width=500, height=500,
+            autosize=False,
+            # legend_yanchor='middle',
+            polar=dict(
+                radialaxis=dict(
+                    visible=True,
+                    range=[0, 10]
+                    )),
+                showlegend=True
+                )
+
+    return multiPolar
+
+
 @app.callback(
         [Output('table', 'data'), Output('table','columns'), Output('plotTrimesterDropdown','value'), Output('linePlot','figure')],
         [Input('tableRoomDropdown', 'value'), Input('tableTrimesterDropdown', 'value')])
@@ -53,7 +145,7 @@ def toggleView(btn1):
     if btn1 != 1:
         if tableToggleVariable:
             tempTableStyle = tableStyle.copy()
-            tempTableStyle['height'] = '100px'
+            tempTableStyle['height'] = '0px'
             tableToggleVariable = False
             return tempTableStyle
         else:
@@ -76,6 +168,7 @@ def switchStudentsButtonLogic(studentSelectedIndex, button_id, plotIdentifier):
         studentSelectedIndex += currentStudentOffset[plotIdentifier]
         studentSelectedIndex = max(studentSelectedIndex,0)
         studentSelectedIndex = min(studentSelectedIndex,len(dfGetTrimester(currentRoom,currentTrimester))-1)
+    # currentStudentIndex = studentSelectedIndex
     return studentSelectedIndex
 
 @app.callback(
@@ -90,9 +183,8 @@ def updateStudentLine(nextButton, prevButton, active_cell, table_data):
 
     ctx = dash.callback_context
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    studentSelectedIndex = active_cell['row'] 
+    studentSelectedIndex = active_cell['row'] if active_cell else 0
     studentSelectedIndex = switchStudentsButtonLogic(studentSelectedIndex, button_id,1)
-    print(dfGetTrimester().iloc[studentSelectedIndex,0])
 
 
     dfConcat = pd.DataFrame()
@@ -195,7 +287,7 @@ def updateHybridPlot(nextButton, prevButton, active_cell,trimesterFromDropdown,t
         [State('table', 'data')])
 def updateAlunoSelected(active_cell,table_data):
     row = active_cell['row'] 
-    name = dfGetTrimester(currentTrimester).iloc[row].iloc[0]
+    name = dfGetTrimester(currentRoom, currentTrimester).iloc[row].iloc[0]
     return f"{name}"
 
         
