@@ -59,13 +59,19 @@ def updateMultiPolar(active_cell, selectedTrimester, table_data, trimesterFromDr
     layoutPolar = go.Layout(
             legend=dict(x=1,y=0.85),
       margin=go.layout.Margin(
-            l=20, #left margin
-            r=0, #right margin
-            b=0, #bottom margin
-            t=0, #top margin
+            #l=20, #left margin
+            #r=0, #right margin
+            #b=0, #bottom margin
+            #t=0, #top margin
+         l=100, #left margin
+            r=100, #right margin
+            b=100, #bottom margin
+            t=100, #top margin       
         )
     )
-    multiPolar = go.Figure(layout = layoutPolar)
+    multiPolar = go.Figure(layout = layoutPolar
+           
+            )
 
     multiPolar.add_trace(go.Scatterpolar(
         r=closeLine(sRoomMean),
@@ -89,7 +95,7 @@ def updateMultiPolar(active_cell, selectedTrimester, table_data, trimesterFromDr
     # fig.update_traces(textposition="middle right")
 
     multiPolar.update_layout(
-            width=500, height=500,
+            width=900, height=500,
             autosize=False,
             # legend_yanchor='middle',
             polar=dict(
@@ -100,6 +106,25 @@ def updateMultiPolar(active_cell, selectedTrimester, table_data, trimesterFromDr
                 showlegend=True
                 )
 
+    multiPolar.add_layout_image(
+        dict(
+            source="assets/polar_background4.png",
+            xref="paper",
+            yref="paper",
+            #sizex=img_width,
+            #sizey=img_height,
+            #x=-1.9,
+            #y=4.5,
+            x=0.52,
+            y=0.5,
+            sizex=1.35,
+            sizey=1.35,
+            opacity=1.0,
+            xanchor="center",
+            yanchor="middle",
+            layer="below")
+)
+    multiPolar.update_layout(template="plotly")   
     return multiPolar
 
 
@@ -196,10 +221,13 @@ def updateStudentLine(nextButton, prevButton, active_cell, table_data):
             .set_index("Estudante")\
             .set_axis(["1º Trimestre","2º Trimestre","3º Trimestre"], axis='index')
 
-    studentLinePlot = px.line(dfConcat,
+    print("CONCAT:",dfConcat)
+    dfConcat.index.name = "Trimestres"
+    studentLinePlot = px.line(dfConcat, 
         color_discrete_sequence = px.colors.qualitative.Dark24)
     studentLinePlot.update_traces(line=dict(width=4))
     studentLinePlot.update_layout(noMarginTop)
+    studentLinePlot.update_yaxes(title_text="Nota do aluno")
 
     return studentLinePlot
 

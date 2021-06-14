@@ -27,7 +27,7 @@ def discrete_background_color_bins(df, n_bins=9, columns='all'):
         backgroundColor = colorlover.scales[str(n_bins)]['div']['RdYlGn'][i - 1]
         # backgroundColor = colorlover.scales[str(n_bins)]['seq']['Blues'][i - 1]
         #color = 'white' if i > len(bounds) / 5. else 'inherit'
-        color = 'white' if i > 7 else 'black'
+        color = 'white' if i > 7 or i <3 else 'black'
 
         for column in df_numeric_columns:
             styles.append({

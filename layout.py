@@ -8,8 +8,10 @@ tabs_styles = {
         }
 
 (styles, legend) = discrete_background_color_bins(placeHolderInitialDf.iloc[:,1:])
+styles.append({'if': {'column_id': 'Estudante'}, 'width': '15%'})
 external_stylesheets = ['assets/style.css']
 app = dash.Dash(__name__,external_stylesheets = external_stylesheets)
+app.title= "EscolaTransparente"
 
 
 tableStyle = {
@@ -24,7 +26,7 @@ gradeTable = dash_table.DataTable(
         id='table',
         columns=[{"name": i, "id": i} for i in placeHolderInitialDf.columns],
         data=placeHolderInitialDf.to_dict('records'),
-        fixed_rows={'headers': False},
+        fixed_rows={'headers': True},
         style_table=tableStyle,
         style_cell={'textAlign': 'center',
             'border': '1px solid grey',
@@ -32,7 +34,8 @@ gradeTable = dash_table.DataTable(
             },
         style_header={
             'backgroundColor': 'white',
-            'width': '60px'
+            'width': '30px',
+            'maxWidth': '20px',
             },
 
         editable=False,
@@ -55,7 +58,9 @@ studentLinePlot = dcc.Graph(id = "studentLinePlot",
                                 }
                             )
 studentPersonalPolar = dcc.Graph(id = "studentPersonalPolar",
-                                style={'width':"50%"})
+                                style={'width':"50%"},
+                                
+                                )
 studentHybridPlot = dcc.Graph(id="studentHybridPlot",
         style={'margin-left':'-90px'},
         config={
@@ -69,7 +74,11 @@ barGraph = dcc.Graph(id="barPlot",
             'margin-bottom':'25px'})
 multiPolarGraph = dcc.Graph(id="multiPolar",
         style={'display': 'inline-block',
-                'width':'50%'})
+                'width':'50%'},
+                config={
+                        'displayModeBar': False
+                    }
+        )
 lineGraph = dcc.Graph(figure = plotLineGraph,
         id="linePlot",
         style={'display': 'inline-block',
@@ -136,8 +145,9 @@ studentDetail = html.Div(style = {
                             multiPolarGraph,
                             plotTrimesterDropdown],
                             className = 'five columns',
-                            style={'margin-left':'300px',
-                                'margin-top':'10px'
+                            style={'margin-left':'100px',
+                                'margin-top':'10px',
+                                'border': '1px solid-black'
                                 }
                             ),
                     html.Div(
@@ -146,7 +156,7 @@ studentDetail = html.Div(style = {
                             studentLinePlot],
                             style={
                                 #'margin-top': '-60px',
-                                'margin-top':'30px',
+                                'margin-top':'60px',
                                 'margin-right': '20px',
                                 'margin-left': '-60px'
                                 }
