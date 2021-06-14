@@ -39,4 +39,12 @@ def srGetStudentTrimester(trimester,nrow):
     srStudentTrimester = dfs[currentRoom][trimester].iloc[nrow,1:]
     return srStudentTrimester
 
+def dfGetPersonalActivities():
+    fileName = currentRoom + "_personal.csv"
+    dfPersonalActivities = pd.read_csv(dataPath + currentRoom + "_personal.csv", sep = ";")
+    
+    cols = [6,7,8,9,10]
+    dfPersonalActivities.drop(dfPersonalActivities.columns[cols],axis=1,inplace=True)
+    return dfPersonalActivities
+
 placeHolderInitialDf = dfGetTrimester(currentRoom, currentTrimester)
