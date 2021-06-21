@@ -236,12 +236,12 @@ def plotRadarIndividual(actv, values, means, nome):
     return fig
 
 tableStyle = {
-            # 'height': '300px',
-            'height': '700px',
-            'overflowY': 'auto',
-            'margin-left' : '20px',
-            # 'margin-right' : '30px'
-            }
+        # 'height': '300px',
+        'height': '900px',
+        'overflowY': 'auto',
+        'margin-left' : '20px',
+        # 'margin-right' : '30px'
+        }
 
 gradeTable = dash_table.DataTable(
         id='table',
@@ -273,19 +273,19 @@ plotLineGraph = px.line(placeHolderInitialDf.iloc[:,1:],
 plotLineGraph.update_traces(line=dict(width=4))
 
 studentLinePlot = dcc.Graph(id = "studentLinePlot",
-                            style={'width':"100%"},
-                            config={
-                                    'displayModeBar': False
-                                }
-                            )
+        style={'width':"100%"},
+        config={
+            'displayModeBar': False
+            }
+        )
 studentPersonalPolar = dcc.Graph(id = "studentPersonalPolar",
-                                style={'width':"50%"},
-                                
-                                )
+        style={'width':"50%"},
+
+        )
 studentHybridPlot = dcc.Graph(id="studentHybridPlot",
         style={'margin-left':'-90px'},
         config={
-                'displayModeBar': False
+            'displayModeBar': False
             }
         )
 
@@ -293,19 +293,20 @@ barGraph = dcc.Graph(id="barPlot",
         style={'display': 'inline-block',
             'width':'33%',
             'margin-bottom':'25px'})
+
 multiPolarGraph = dcc.Graph(id="multiPolar",
-        style={'display': 'inline-block',
-                'width':'50%'},
-                config={
-                        'displayModeBar': False
-                    }
-        )
+    style={'display': 'inline-block',
+        'width':'50%'},
+    config={
+        'displayModeBar': False
+        }
+    )
 lineGraph = dcc.Graph(figure = plotLineGraph,
-        id="linePlot",
-        style={'display': 'inline-block',
-            'width':'50%',
-            'margin-left':'450px',
-            'margin-right':'100px'})
+    id="linePlot",
+    style={'display': 'inline-block',
+        'width':'50%',
+        'margin-left':'450px',
+        'margin-right':'100px'})
 
 lineChart = dcc.Graph(id="line-chart",
         style={'display': 'inline-block',
@@ -389,7 +390,8 @@ tableTrimesterDropdown = dcc.Dropdown(
         options=[
             {'label': '1º Trimestre', 'value': '1T'},
             {'label': '2º Trimestre', 'value': '2T'},
-            {'label': '3º Trimestre', 'value': '3T'}
+            {'label': '3º Trimestre', 'value': '3T'},
+            {'label': 'Média Final', 'value': 'MF'}
 
             ],
         value="1T",
@@ -401,7 +403,8 @@ plotTrimesterDropdown = dcc.Dropdown(
         options=[
             {'label': '1º Trimestre', 'value': '1T'},
             {'label': '2º Trimestre', 'value': '2T'},
-            {'label': '3º Trimestre', 'value': '3T'}
+            {'label': '3º Trimestre', 'value': '3T'},
+            {'label': 'Média Final', 'value': 'MF'}
 
             ],
         value='1T',
@@ -410,49 +413,34 @@ plotTrimesterDropdown = dcc.Dropdown(
         )
 
 
-    # LAYOUT
+# LAYOUT
 
-studentDetail = html.Div(style = {
-                # 'margin-top':'-30px'
-                    }, 
-    children=[
-    html.Div(id = "studentGraphs", children=[
-        html.Div( # Student
-            className = 'row',children=[
-                html.Div([
-                    html.Div(
-                        [html.H3("Gráfico Polar",style={'text-align':'center'}),
-                            multiPolarGraph,
-                            plotTrimesterDropdown],
-                            className = 'five columns',
-                            style={'margin-left':'100px',
-                                'margin-top':'10px',
-                                'border': '1px solid-black'
-                                }
-                            ),
-                    html.Div(
-                        html.Center([
-                            html.H3("Gráfico de Linha", style={'text-align':'center'}),
-                            studentLinePlot],
-                            style={
-                                #'margin-top': '-60px',
-                                'margin-top':'60px',
-                                'margin-right': '20px',
-                                'margin-left': '-60px'
-                                }
-                            ),
-                        className= 'five columns'
-                        )],style={
-                            'margin-top':'-0px'
-                            }
-                        ),
-
-                ]
-            ),
-        ])
-    ]
-            )
-
+studentDetail = html.Div(id = "studentGraphs",
+                    className = 'row',
+                    children=[ html.Div([
+                                    html.Center(
+                                        [html.H3("Gráfico Polar"),
+                                            multiPolarGraph,
+                                            plotTrimesterDropdown],
+                                        className = 'five columns',
+                                        style={'margin-left':'-100px',
+                                        'margin-top':'10px',
+                                        }
+                                    ),
+                                    html.Center([
+                                        html.H3("Gráfico de Linha"),
+                                            studentLinePlot],
+                                        className= 'five columns',
+                                        style={
+                                            #'margin-top': '-60px',
+                                            'margin-top':'60px',
+                                            'margin-right': '-400px',
+                                            'margin-left': '200px'
+                                            }
+                                        ),
+                                    ])
+                                ]
+                            )
 
 studentPersonal = html.Div([
     html.Div(studentPersonalPolar, style={'display':'block',
@@ -461,11 +449,17 @@ studentPersonal = html.Div([
     ], style={'display':'block'}
     )
 
-alunoHeader = html.Div(style={'display':'inline-block'},
-                    children= [html.Img(src=app.get_asset_url('student.jpg'), style={'height':"10%",'width':"10%"}),
-                        html.H3("",id="studentSelectedName"),
-                        html.H3("",id="studentSelectedAge"),
-                        ])
+alunoHeader = html.Center(style={'display':'inline-block'},
+        children= [#html.Img(src=app.get_asset_url('student.jpg'), style={'height':"10%",'width':"10%", 'display':'inline-block'}),
+            html.H3("",id="studentSelectedInfo", style={
+                #'display':'inline-block',
+                #'text-align':'center',
+                #'margin-left':'500px'
+                }),
+            #html.H3("",id="studentSelectedAge", style={
+            #'display':'inline-block',
+            #'margin-left':'30px'})
+            ])
 
 app.layout = html.Div(children=[
     html.Div([tableRoomDropdown,
@@ -559,6 +553,4 @@ app.layout = html.Div(children=[
                         ]),
                         individualHybridPlot,individualRadarPlot]
                     )
-                ]
-            )
-        ])
+                ])])
