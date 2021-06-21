@@ -13,6 +13,113 @@ external_stylesheets = ['assets/style.css']
 app = dash.Dash(__name__,external_stylesheets = external_stylesheets)
 app.title= "EscolaTransparente"
 
+def groupedBarPlot(df):
+    alunos = df.iloc[:, 0].tolist()
+    deslocamento = df.iloc[:, 1].tolist()
+    esporte = df.iloc[:, 2].tolist()
+    jogo = df.iloc[:, 3].tolist()
+    leitura = df.iloc[:, 4].tolist()
+    series = df.iloc[:, 5].tolist()
+
+    fig = go.Figure()
+    fig.add_trace(go.Bar(x=alunos,
+                    y=deslocamento,
+                    name=activities[0],
+                    marker_color='rgb(120,198,232)'
+                    ))
+    fig.add_trace(go.Bar(x=alunos,
+                    y=esporte,
+                    name=activities[1],
+                    marker_color='rgb(85,191,212)'
+                    ))
+    fig.add_trace(go.Bar(x=alunos,
+                    y=jogo,
+                    name=activities[2],
+                    marker_color='rgb(113,71,181)'
+                    ))
+    fig.add_trace(go.Bar(x=alunos,
+                    y=leitura,
+                    name=activities[3],
+                    marker_color='rgb(178,131,235)'
+                    ))
+    fig.add_trace(go.Bar(x=alunos,
+                    y=series,
+                    name=activities[4],
+                    marker_color='rgb(228,141,235)'
+                    ))
+    fig.update_layout(
+        #autosize=False,
+        #width=1200,
+        title="Extracurricular Activities",
+        xaxis_title="Alunos",
+        yaxis_title="Tempo em horas"
+    )
+    
+    return fig
+
+def getBarPlotActivities(df1, activities):
+    
+    figBar = go.Figure()
+    figBar.add_trace(go.Bar(
+        x=df1.iloc[:, 0],
+        y=df1.iloc[:, 1],
+        name=activities[0],
+        orientation='v',
+        marker=dict(
+            color='rgba(216,171,242, 0.6)',
+            line=dict(color='rgba(216,171,242, 1.0)', width=1)
+        )
+    ))
+    figBar.add_trace(go.Bar(
+        #x=df1['Nome_Aluno'],
+        x=df1.iloc[:, 0],
+        y=df1.iloc[:, 2],
+        name=activities[1],
+        orientation='v',
+        marker=dict(
+            color='rgba(154,131,244, 0.6)',
+            line=dict(color='rgba(154,131,244, 1.0)', width=1)
+        )
+    ))
+    figBar.add_trace(go.Bar(
+        #x=df1['Nome_Aluno'],
+        x=df1.iloc[:, 0],
+        y=df1.iloc[:, 3],
+        name=activities[2],
+        orientation='v',
+        marker=dict(
+            color='rgba(244,150,118, 0.6)',
+            line=dict(color='rgba(244,150,118, 1.0)', width=1)
+        )
+    ))
+    figBar.add_trace(go.Bar(
+        #x=df1['Nome_Aluno'],
+        x=df1.iloc[:, 0],
+        y=df1.iloc[:, 4],
+        name=activities[3],
+        orientation='v',
+        marker=dict(
+            color='rgba(20,206,163, 0.6)',
+            line=dict(color='rgba(20,206,163, 1.0)', width=1)
+        )
+    ))
+    figBar.add_trace(go.Bar(
+        #x=df1['Nome_Aluno'],
+        x=df1.iloc[:, 0],
+        y=df1.iloc[:, 5],
+        name=activities[4],
+        orientation='v',
+        marker=dict(
+            color='rgba(166,234,102, 0.6)',
+            line=dict(color='rgba(166,234,102, 1.0)', width=1)
+        )
+    ))
+    figBar.update_layout(barmode='stack',
+        title="Extracurricular Activities",
+        xaxis_title="Alunos",
+        yaxis_title="Tempo em horas")
+    return figBar
+
 
 tableStyle = {
             # 'height': '300px',
@@ -85,6 +192,26 @@ lineGraph = dcc.Graph(figure = plotLineGraph,
             'width':'50%',
             'margin-left':'450px',
             'margin-right':'100px'})
+
+lineChart = dcc.Graph(id="line-chart",
+        style={'display': 'inline-block',
+        'width':'100%'})
+        
+barPlotActivities = dcc.Graph(figure=getBarPlotActivities(personalActivities, personalActivities.columns[1:].tolist()),
+        id = 'barPlotActivities',
+        style={'display': 'inline-block',
+        'width':'100%'})
+
+groupedBPlot = dcc.Graph(figure=groupedBarPlot(personalActivities),
+        id = 'groupedBarPlotActivities',
+        style={'display': 'inline-block',
+        'width':'100%'})
+
+checkListActivities = dcc.Checklist(
+            id="checklist",
+            options=[{"label": x, "value": x} for x in personalActivities.columns[1:].tolist()],
+            value= personalActivities.columns[1:].tolist()[3:],
+            labelStyle={'display': 'inline-block'})
 
 
 toggleViewButton = html.Button('Ocultar/Mostrar Tabela', id='ToggleView', n_clicks=1, style={'margin-left':'10px'})
@@ -204,7 +331,40 @@ app.layout = html.Div(children=[
         dcc.Tabs(id = "tabHandler", style= tabs_styles, value='room', children = 
             [
                 dcc.Tab(label='Sala', value='room',
-                    children = [html.Div(lineGraph, style={})]
+                    #children = [html.Div(lineGraph, style={})]
+                    children = [html.Div(lineGraph, style={}),
+                        html.H3(
+                            children='Atividades Extracurriculares',
+                            style={
+                                'textAlign': 'center',
+                                'color': '#7FDBFF'
+                            }
+                        ),
+                        html.Div([
+                            checkListActivities,
+                            lineChart
+                        ]), 
+                        html.Div([
+                            html.H5(
+                                children='Stacked Bar Plot - Atividades Extracurriculares em Horas x Aluno',
+                                style={
+                                    'textAlign': 'center',
+                                    'color': '#9a83f4'
+                                }
+                            ),
+                            barPlotActivities
+                        ]),
+                        html.Div([
+                            html.H5(
+                                children='Grouped Bar Plot - Atividades Extracurriculares em Horas x Aluno',
+                                style={
+                                    'textAlign': 'center',
+                                    'color': '#9a83f4'
+                                }
+                            ),
+                            groupedBPlot
+                        ])
+                    ]
                     ),
                 dcc.Tab(label='Aluno - Acadêmico', value='student',
                     children = [

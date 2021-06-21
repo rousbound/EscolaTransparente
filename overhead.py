@@ -47,4 +47,15 @@ def dfGetPersonalActivities():
     dfPersonalActivities.drop(dfPersonalActivities.columns[cols],axis=1,inplace=True)
     return dfPersonalActivities
 
+
+def dfGetPersonalActivities(room=currentRoom):
+    global currentRoom
+    dfPersonalActivities = pd.read_csv(dataPath +  room + "_personal.csv", sep = ";")
+    
+    cols = [6,7,8,9,10]
+    dfPersonalActivities.drop(dfPersonalActivities.columns[cols],axis=1,inplace=True)
+    return dfPersonalActivities
+
 placeHolderInitialDf = dfGetTrimester(currentRoom, currentTrimester)
+personalActivities = dfGetPersonalActivities(currentRoom)
+activities= ['Tempo de Deslocamento', 'Tempo de Prática de Esportes', 'Tempo Jogando Videogames', 'Tempo Investido em Leitura', 'Tempo Assistindo Séries']

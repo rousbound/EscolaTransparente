@@ -3,6 +3,8 @@ from overhead import *
 from layout import *
 
 DEBUG = True
+global df1 
+df1 = personalActivities
 
 noMarginTop = go.Layout(margin={
         # 'l':0,
@@ -127,13 +129,15 @@ def updateMultiPolar(active_cell, selectedTrimester, table_data, trimesterFromDr
     multiPolar.update_layout(template="plotly")   
     return multiPolar
 
-
+#,Output('checklist', 'value')
 @app.callback(
-        [Output('table', 'data'), Output('table','columns'), Output('plotTrimesterDropdown','value'), Output('linePlot','figure')],
+        [Output('table', 'data'), Output('table','columns'), Output('plotTrimesterDropdown','value'), Output('linePlot','figure'),
+        Output('checklist', 'value'), Output('barPlotActivities','figure'), Output('groupedBarPlotActivities', 'figure')],
         [Input('tableRoomDropdown', 'value'), Input('tableTrimesterDropdown', 'value')])
 def tableRoomDropdownClickHandler(selectedRoom, selectedTrimester):
     global currentRoom
     global currentTrimester
+    global df1
     currentRoom = selectedRoom
     currentTrimester = selectedTrimester
     dfTrimestersMeans = dfGetTrimestersMeans(currentRoom)
@@ -159,8 +163,17 @@ def tableRoomDropdownClickHandler(selectedRoom, selectedTrimester):
     returnTableData = dfTable.to_dict('records')
     
     columns = [{"name": i, "id": i} for i in dfTable.columns]
+    
+    personalActivities = dfGetPersonalActivities(currentRoom)
+    df1 = personalActivities
+    value= df1.columns[1:].tolist()[3:]
 
-    return  returnTableData, columns, selectedTrimester, plotLineGraph
+    figStackedBarPlot=getBarPlotActivities(personalActivities, personalActivities.columns[1:].tolist())
+
+    figGroupedBP = groupedBarPlot(personalActivities)
+    
+
+    return  returnTableData, columns, selectedTrimester, plotLineGraph, value, figStackedBarPlot, figGroupedBP
 
 @app.callback(Output('table', 'style_table'),
                 #Input('table', 'active_cell'),
@@ -318,6 +331,17 @@ def updateAlunoSelected(active_cell,table_data):
     name = dfGetTrimester(currentRoom, currentTrimester).iloc[row].iloc[0]
     return f"{name}"
 
-        
+@app.callback(
+    Output("line-chart", "figure"), 
+    [Input("checklist", "value")])
+def update_line_chart(activity):
+    global df1
+    #fig = px.line(df1, x="Nome_Aluno", y=activity)
+    fig = px.scatter(df1, x="Nome_Aluno", y=activity,
+        title="Atividades Extracurriculares",
+        labels={"value":"Tempo em horas", "Nome_Aluno":"Alunos"})
+    
+    return fig
+
 if __name__ == '__main__':
     app.run_server(debug=DEBUG, host='0.0.0.0', port="8052")
