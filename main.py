@@ -1,6 +1,7 @@
 from imports import *
 from overhead import *
 from layout import *
+import random
 
 DEBUG = True
 
@@ -17,8 +18,8 @@ def closeLine(s):
     return l
 
 @app.callback(
-        Output('studentSelectedName','children'),
-        Output('studentSelectedAge','children'),
+        Output('studentSelectedInfo','children'),
+        #Output('studentSelectedAge','children'),
          Input('table', 'active_cell'),
          Input('nextStudentButton', 'n_clicks'),
          Input('previousStudentButton', 'n_clicks'),
@@ -26,7 +27,7 @@ def closeLine(s):
 def updateStudentHeader(active_cell, nextButton, prevButton):
     global currentStudentIndex
     # studentSelectedIndex = active_cell['row'] if active_cell else 0
-    return dfGetTrimester(currentRoom, currentTrimester).iloc[currentStudentIndex,0], "23 Anos"
+    return  dfGetTrimester(currentRoom, currentTrimester).iloc[currentStudentIndex,0] + " - " + str(random.randint(18,21)) + " Anos"
 
 
 
@@ -53,7 +54,7 @@ def updateMultiPolar(active_cell, selectedTrimester, table_data, trimesterFromDr
     srStudentTrimester = srGetStudentTrimester(trimester, studentSelectedIndex)
 
     labels = srStudentTrimester.index
-    sRoomMean = dfGetTrimestersMeans(currentRoom).loc[currentTrimester]
+    sRoomMean = dfGetTrimestersMeans(currentRoom).loc[trimester]
 
 
     layoutPolar = go.Layout(
@@ -103,7 +104,13 @@ def updateMultiPolar(active_cell, selectedTrimester, table_data, trimesterFromDr
                     visible=True,
                     range=[0, 10]
                     )),
-                showlegend=True
+                showlegend=True,
+            legend=dict(
+                yanchor="top",
+                y=0.99,
+                xanchor="left",
+                x=0.01
+            )
                 )
 
     multiPolar.add_layout_image(
@@ -119,7 +126,7 @@ def updateMultiPolar(active_cell, selectedTrimester, table_data, trimesterFromDr
             y=0.5,
             sizex=1.35,
             sizey=1.35,
-            opacity=1.0,
+            opacity=0.4,
             xanchor="center",
             yanchor="middle",
             layer="below")
@@ -138,24 +145,21 @@ def tableRoomDropdownClickHandler(selectedRoom, selectedTrimester):
     currentTrimester = selectedTrimester
     dfTrimestersMeans = dfGetTrimestersMeans(currentRoom)
     print(currentRoom)
-    print(dfTrimestersMeans)
+    print(currentTrimester)
 
     plotLineGraph = px.line(
-            dfTrimestersMeans,
+            dfTrimestersMeans[:-1],
             color_discrete_sequence = px.colors.qualitative.Dark24)
     plotLineGraph.update_traces(line=dict(width=4))
-    plotLineGraph.update_yaxes(range=[0,10])
+    plotLineGraph.update_yaxes(range=[0,10], title="Nota média")
 
     sortedDf = dfTrimestersMeans\
                     .loc[currentTrimester]\
                     .sort_values(ascending=False)
 
     sortedLabels = sortedDf.index.tolist()
-    print(sortedDf)
-    print(sortedLabels)
 
     dfTable = dfGetTrimester(currentRoom, currentTrimester)[['Estudante'] + sortedLabels]
-    print(dfTable)
     returnTableData = dfTable.to_dict('records')
     
     columns = [{"name": i, "id": i} for i in dfTable.columns]
@@ -170,7 +174,7 @@ def toggleView(btn1):
     if btn1 != 1:
         if tableToggleVariable:
             tempTableStyle = tableStyle.copy()
-            tempTableStyle['height'] = '0px'
+            tempTableStyle['height'] = '100px'
             tableToggleVariable = False
             return tempTableStyle
         else:
@@ -193,7 +197,7 @@ def switchStudentsButtonLogic(studentSelectedIndex, button_id, plotIdentifier):
         studentSelectedIndex += currentStudentOffset[plotIdentifier]
         studentSelectedIndex = max(studentSelectedIndex,0)
         studentSelectedIndex = min(studentSelectedIndex,len(dfGetTrimester(currentRoom,currentTrimester))-1)
-    # currentStudentIndex = studentSelectedIndex
+    #currentStudentIndex = studentSelectedIndex
     return studentSelectedIndex
 
 @app.callback(
@@ -213,6 +217,7 @@ def updateStudentLine(nextButton, prevButton, active_cell, table_data):
 
 
     dfConcat = pd.DataFrame()
+    print(studentSelectedIndex)
     for df in list(dfs[currentRoom].values())[:3]: # Concat first three trimesters 
         dfConcat = pd.concat([dfConcat,df.iloc[studentSelectedIndex]], axis=1)
 
@@ -227,6 +232,8 @@ def updateStudentLine(nextButton, prevButton, active_cell, table_data):
         color_discrete_sequence = px.colors.qualitative.Dark24)
     studentLinePlot.update_traces(line=dict(width=4))
     studentLinePlot.update_layout(noMarginTop)
+    studentLinePlot.update_layout(legend_title_text='Disciplinas')
+    studentLinePlot.update_layout(template="plotly")
     studentLinePlot.update_yaxes(title_text="Nota do aluno")
 
     return studentLinePlot

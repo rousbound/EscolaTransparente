@@ -10,6 +10,8 @@ df3202 = pd.read_excel(dataPath + "3202.xlsx", sheet_name=None)
 
 dfs = {'3201':df3201,'3202':df3202}
 
+print(df3201.keys())
+
 currentRoom = "3201"
 currentTrimester = "1T"
 currentStudentOffset = [0,0]
