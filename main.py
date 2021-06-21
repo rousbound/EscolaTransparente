@@ -32,9 +32,9 @@ def updateStudentHeader(active_cell, nextButton, prevButton):
 
 
 
-
 @app.callback(
-        Output('multiPolar','figure'),
+        [Output('multiPolar','figure'), Output('clevelandPlot','figure'), Output('indDonutPlot','figure'),
+        Output('hybridInd','figure'), Output('radarInd','figure')],
         [Input('table', 'active_cell'),
          Input('tableRoomDropdown', 'value'),
          Input('tableTrimesterDropdown', 'value'),
@@ -43,7 +43,7 @@ def updateStudentHeader(active_cell, nextButton, prevButton):
          Input('previousStudentButton', 'n_clicks'),
          ])
 def updateMultiPolar(active_cell, selectedTrimester, table_data, trimesterFromDropdown, nextButton, prevButton):
-
+    global df1
     studentSelectedIndex = active_cell['row'] if active_cell else 0
     ctx = dash.callback_context
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
@@ -127,7 +127,21 @@ def updateMultiPolar(active_cell, selectedTrimester, table_data, trimesterFromDr
             layer="below")
 )
     multiPolar.update_layout(template="plotly")   
-    return multiPolar
+
+    personalActivities = dfGetPersonalActivities(currentRoom)
+    actv = personalActivities.columns[1:].tolist()
+    df1 = personalActivities
+    means = getMeans(df1)
+    alunos, deslocamento, esporte, jogo, leitura, series = getSeparatedLists(df1)
+    i = studentSelectedIndex
+    values = [deslocamento[i], esporte[i], jogo[i], leitura[i], series[i]]
+    nome = alunos[i]
+    clevPlot = clevelantPlotIndividual(values, actv, means, nome)
+
+    indDonut = createIndividualDonut(actv, values, nome)
+    hybridPlot = hybridPlotIndividual(actv, values, means, nome)
+    radarPlot = plotRadarIndividual(actv, values, means, nome)
+    return multiPolar, clevPlot, indDonut, hybridPlot, radarPlot
 
 #,Output('checklist', 'value')
 @app.callback(

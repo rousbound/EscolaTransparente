@@ -132,10 +132,16 @@ def getMeans(df):
         valuesM.append(np.mean(df.iloc[:, i].tolist()))
     return valuesM
 
-means = getMeans(personalActivities)
+#means = getMeans(personalActivities)
 
 def createDonutPlot(df):
+    means = getMeans(df)
     fig = go.Figure(data=[go.Pie(labels=activities, values=means, hole=.3)])
+    return fig
+
+def createIndividualDonut(actv, values, nome):
+    fig = go.Figure(data=[go.Pie(labels=actv, values=values, hole=.3)])
+    fig.update_layout(title="Extracurricular Activities - "+nome)
     return fig
 
 def multipleViolinPlots(df, activities):
@@ -162,14 +168,14 @@ def ridgelinePlot(df):
     fig.update_layout(xaxis_showgrid=False, xaxis_zeroline=False)
     return fig
 
-def clevelantPlotIndividual(values, actv):
+def clevelantPlotIndividual(values, actv, means, nome):
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=actv,
         y=values,
         marker=dict(color="crimson", size=20),
         mode="markers",
-        name='Aluno',
+        name='Aluno: '+nome,
     ))
     fig.add_trace(go.Scatter(
         x=actv,
@@ -182,6 +188,51 @@ def clevelantPlotIndividual(values, actv):
                       xaxis_title="Atividades",
                       yaxis_title="Tempo em horas")
 
+    return fig
+
+def hybridPlotIndividual(actv, values, means, nome):
+    fig = go.Figure()
+    colors = ['aqua', 'lightseagreen', 'aquamarine', 'lightgoldenrodyellow', 'lightsteelblue']
+    colors1 = ['aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure']
+    colors2 = ['beige', 'bisque', 'black', 'blanchedalmond', 'blue']
+    for i in range (5):
+        fig.add_trace(go.Bar(x=[actv[i]], y=[values[i]],marker_color=colors[i], name=actv[i], marker_line_color='black'))
+    fig.add_trace(go.Scatter(
+        x=actv,
+        y=means,
+        marker=dict(color="crimson", size=20),
+        mode="markers",
+        name="Média Turma")
+    )
+    fig.update_layout(title="Extracurricular Activities - "+nome)
+    return fig
+
+def plotRadarIndividual(actv, values, means, nome):
+    fig = go.Figure()
+    actv.append(actv[0])
+    values.append(values[0])
+    means.append(means[0])
+    fig.add_trace(go.Scatterpolar(r=values, theta=actv, 
+                                  #fill='toself',
+                                  name='Aluno: '+ nome))
+    
+    fig.add_trace(go.Scatterpolar(
+          r=means,
+          theta=actv,
+          #fill='toself',
+          name='Média Turma'
+    ))
+    
+    fig.update_layout(
+      polar=dict(
+        radialaxis=dict(
+          visible=True,
+          range=[0, max(max(values), max(means))]
+        )),
+      showlegend=True
+    )
+
+    fig.update_layout(title="Extracurricular Activities - "+nome)
     return fig
 
 tableStyle = {
@@ -290,6 +341,30 @@ ridgedPlot = dcc.Graph(figure=ridgelinePlot(personalActivities),
         id = 'ridgePlot',
         style={'display': 'inline-block',
         'width':'50%'})
+clevelandPlot = dcc.Graph(id="clevelandPlot",
+        style={'display': 'inline-block',
+                'width':'50%'},
+        config={
+            'displayModeBar': False
+        })
+individualDonutPlot = dcc.Graph(id="indDonutPlot",
+        style={'display': 'inline-block',
+                'width':'50%'},
+        config={
+            'displayModeBar': False
+        })
+individualHybridPlot = dcc.Graph(id="hybridInd",
+        style={'display': 'inline-block',
+                'width':'50%'},
+        config={
+            'displayModeBar': False
+        })
+individualRadarPlot = dcc.Graph(id="radarInd",
+        style={'display': 'inline-block',
+                'width':'50%'},
+        config={
+            'displayModeBar': False
+        })
 
 toggleViewButton = html.Button('Ocultar/Mostrar Tabela', id='ToggleView', n_clicks=1, style={'margin-left':'10px'})
 
@@ -453,7 +528,7 @@ app.layout = html.Div(children=[
                             ),
                             donutPlot])
                         ]),
-                         html.Div([
+                        html.Div([
                             html.H5(
                                 children='Violin e Rigged Plot - Atividades Extracurriculares da Turma',
                                 style={
@@ -471,7 +546,18 @@ app.layout = html.Div(children=[
                         studentDetail]
                     ),
                 dcc.Tab(label='Aluno - Pessoal', value='studentPersonal',
-                    children = [studentPersonal]
+                    #children = [studentPersonal]
+                    children = [clevelandPlot, individualDonutPlot,
+                    html.Div([
+                            html.H5(
+                                children='Hybrid e Radar Plot - Atividades Extracurriculares do Aluno',
+                                style={
+                                    'textAlign': 'center',
+                                    'color': '#9a83f4'
+                                }
+                            )
+                        ]),
+                        individualHybridPlot,individualRadarPlot]
                     )
                 ]
             )
