@@ -3,6 +3,8 @@ from overhead import *
 import flask
 import base64
 
+global means
+global values
 tabs_styles = {
         'height': '44px'
         }
@@ -13,13 +15,17 @@ external_stylesheets = ['assets/style.css']
 app = dash.Dash(__name__,external_stylesheets = external_stylesheets)
 app.title= "EscolaTransparente"
 
-def groupedBarPlot(df):
+def getSeparatedLists(df):
     alunos = df.iloc[:, 0].tolist()
     deslocamento = df.iloc[:, 1].tolist()
     esporte = df.iloc[:, 2].tolist()
     jogo = df.iloc[:, 3].tolist()
     leitura = df.iloc[:, 4].tolist()
     series = df.iloc[:, 5].tolist()
+    return alunos, deslocamento, esporte, jogo, leitura, series
+
+def groupedBarPlot(df):
+    alunos, deslocamento, esporte, jogo, leitura, series = getSeparatedLists(df)
 
     fig = go.Figure()
     fig.add_trace(go.Bar(x=alunos,
@@ -120,6 +126,63 @@ def getBarPlotActivities(df1, activities):
         yaxis_title="Tempo em horas")
     return figBar
 
+def getMeans(df):
+    valuesM = []
+    for i in range(1,6):
+        valuesM.append(np.mean(df.iloc[:, i].tolist()))
+    return valuesM
+
+means = getMeans(personalActivities)
+
+def createDonutPlot(df):
+    fig = go.Figure(data=[go.Pie(labels=activities, values=means, hole=.3)])
+    return fig
+
+def multipleViolinPlots(df, activities):
+    fig = go.Figure()
+    colors = ['lightcoral', 'lightseagreen', 'aquamarine', 'lightgoldenrodyellow', 'lightsteelblue']
+    for i in range(5):
+        fig.add_trace(go.Violin(y=df[activities[i]], box_visible=True, line_color='black',
+                               meanline_visible=True, fillcolor=colors[i], opacity=0.6,
+                               x0=activities[i], name=activities[i]))
+    return fig
+
+def ridgelinePlot(df):
+    alunos, deslocamento, esporte, jogo, leitura, series = getSeparatedLists(df)
+
+    data = [deslocamento, esporte, jogo, leitura, series]
+    colors = n_colors('rgb(5, 200, 200)', 'rgb(113,71,181)', 5, colortype='rgb')
+    fig = go.Figure()
+    i = 0
+    for data_line, color in zip(data, colors):
+        fig.add_trace(go.Violin(x=data_line, line_color=color, name = activities[i]))
+        i = i+1
+
+    fig.update_traces(orientation='h', side='positive', width=3, points=False)
+    fig.update_layout(xaxis_showgrid=False, xaxis_zeroline=False)
+    return fig
+
+def clevelantPlotIndividual(values, actv):
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=actv,
+        y=values,
+        marker=dict(color="crimson", size=20),
+        mode="markers",
+        name='Aluno',
+    ))
+    fig.add_trace(go.Scatter(
+        x=actv,
+        y=means,
+        marker=dict(color="darkturquoise", size=20),
+        mode="markers",
+        name="Média Turma",
+    ))
+    fig.update_layout(title="Extracurricular Activities",
+                      xaxis_title="Atividades",
+                      yaxis_title="Tempo em horas")
+
+    return fig
 
 tableStyle = {
             # 'height': '300px',
@@ -196,7 +259,7 @@ lineGraph = dcc.Graph(figure = plotLineGraph,
 lineChart = dcc.Graph(id="line-chart",
         style={'display': 'inline-block',
         'width':'100%'})
-        
+
 barPlotActivities = dcc.Graph(figure=getBarPlotActivities(personalActivities, personalActivities.columns[1:].tolist()),
         id = 'barPlotActivities',
         style={'display': 'inline-block',
@@ -213,11 +276,26 @@ checkListActivities = dcc.Checklist(
             value= personalActivities.columns[1:].tolist()[3:],
             labelStyle={'display': 'inline-block'})
 
+donutPlot = dcc.Graph(figure=createDonutPlot(personalActivities),
+        id = 'donutPlot',
+        style={'display': 'inline-block',
+        'width':'65%'})
+
+violinPlot = dcc.Graph(figure=multipleViolinPlots(personalActivities, personalActivities.columns[1:].tolist()),
+        id = 'violinPlot',
+        style={'display': 'inline-block',
+        'width':'50%'})
+
+ridgedPlot = dcc.Graph(figure=ridgelinePlot(personalActivities),
+        id = 'ridgePlot',
+        style={'display': 'inline-block',
+        'width':'50%'})
 
 toggleViewButton = html.Button('Ocultar/Mostrar Tabela', id='ToggleView', n_clicks=1, style={'margin-left':'10px'})
 
 nextStudentButton = html.Button('Próximo Aluno', id='nextStudentButton', n_clicks=1, style={'margin-left':'10px'})
 previousStudentButton = html.Button('Aluno Anterior', id='previousStudentButton', n_clicks=1, style={'margin-left':'10px'})
+
 
 
 tableRoomDropdown = dcc.Dropdown(
@@ -363,7 +441,28 @@ app.layout = html.Div(children=[
                                 }
                             ),
                             groupedBPlot
-                        ])
+                        ]),
+                        html.Div([
+                            html.Center([
+                            html.H5(
+                                children='Donut Plot - Atividades Extracurriculares da Turma',
+                                style={
+                                    'textAlign': 'center',
+                                    'color': '#9a83f4'
+                                }
+                            ),
+                            donutPlot])
+                        ]),
+                         html.Div([
+                            html.H5(
+                                children='Violin e Rigged Plot - Atividades Extracurriculares da Turma',
+                                style={
+                                    'textAlign': 'center',
+                                    'color': '#9a83f4'
+                                }
+                            )
+                        ]),
+                        violinPlot, ridgedPlot
                     ]
                     ),
                 dcc.Tab(label='Aluno - Acadêmico', value='student',
