@@ -29,6 +29,7 @@ def closeLine(s):
 def updateStudentHeader(active_cell, nextButton, prevButton):
     global currentStudentIndex
     # studentSelectedIndex = active_cell['row'] if active_cell else 0
+    print("CurrentStudentIndex:", currentStudentIndex)
     return  dfGetTrimester(currentRoom, currentTrimester).iloc[currentStudentIndex,0] + " - " + str(random.randint(18,21)) + " Anos"
 
 
@@ -165,11 +166,11 @@ def tableRoomDropdownClickHandler(selectedRoom, selectedTrimester):
     print(currentRoom)
     print(currentTrimester)
 
-    plotLineGraph = px.line(
+    classRoomLinePlot = px.line(
             dfTrimestersMeans[:-1],
             color_discrete_sequence = px.colors.qualitative.Dark24)
-    plotLineGraph.update_traces(line=dict(width=4))
-    plotLineGraph.update_yaxes(range=[0,10], title="Nota média")
+    classRoomLinePlot.update_traces(line=dict(width=4))
+    classRoomLinePlot.update_yaxes(range=[0,10], title="Nota média")
 
     sortedDf = dfTrimestersMeans\
                     .loc[currentTrimester]\
@@ -187,11 +188,12 @@ def tableRoomDropdownClickHandler(selectedRoom, selectedTrimester):
     value= df1.columns[1:].tolist()[3:]
 
     figStackedBarPlot=getBarPlotActivities(personalActivities, personalActivities.columns[1:].tolist())
+    classRoomLinePlot.update_layout(legend_title_text='Disciplinas')
 
     figGroupedBP = groupedBarPlot(personalActivities)
     
 
-    return  returnTableData, columns, selectedTrimester, plotLineGraph, value, figStackedBarPlot, figGroupedBP
+    return  returnTableData, columns, selectedTrimester, classRoomLinePlot, value, figStackedBarPlot, figGroupedBP
 
 @app.callback(Output('table', 'style_table'),
                 #Input('table', 'active_cell'),
@@ -224,7 +226,8 @@ def switchStudentsButtonLogic(studentSelectedIndex, button_id, plotIdentifier):
         studentSelectedIndex += currentStudentOffset[plotIdentifier]
         studentSelectedIndex = max(studentSelectedIndex,0)
         studentSelectedIndex = min(studentSelectedIndex,len(dfGetTrimester(currentRoom,currentTrimester))-1)
-    #currentStudentIndex = studentSelectedIndex
+    print("studentSelectedIndex",studentSelectedIndex)
+    currentStudentIndex = studentSelectedIndex
     return studentSelectedIndex
 
 @app.callback(
