@@ -23,14 +23,14 @@ def closeLine(s):
         Output('studentSelectedInfo','children'),
         #Output('studentSelectedAge','children'),
          Input('table', 'active_cell'),
-         Input('nextStudentButton', 'n_clicks'),
-         Input('previousStudentButton', 'n_clicks'),
+         # Input('nextStudentButton', 'n_clicks'),
+         # Input('previousStudentButton', 'n_clicks'),
          )
-def updateStudentHeader(active_cell, nextButton, prevButton):
+def updateStudentHeader(active_cell):
     global currentStudentIndex
-    # studentSelectedIndex = active_cell['row'] if active_cell else 0
+    studentSelectedIndex = active_cell['row'] if active_cell else 0
     print("CurrentStudentIndex:", currentStudentIndex)
-    return  dfGetTrimester(currentRoom, currentTrimester).iloc[currentStudentIndex,0] + " - " + str(random.randint(18,21)) + " Anos"
+    return  dfGetTrimester(currentRoom, currentTrimester).iloc[studentSelectedIndex,0] + " - " + str(random.randint(18,21)) + " Anos"
 
 
 
@@ -41,15 +41,12 @@ def updateStudentHeader(active_cell, nextButton, prevButton):
          Input('tableRoomDropdown', 'value'),
          Input('tableTrimesterDropdown', 'value'),
          Input('plotTrimesterDropdown', 'value'),
-         Input('nextStudentButton', 'n_clicks'),
-         Input('previousStudentButton', 'n_clicks'),
+         # Input('nextStudentButton', 'n_clicks'),
+         # Input('previousStudentButton', 'n_clicks'),
          ])
-def updateMultiPolar(active_cell, selectedTrimester, table_data, trimesterFromDropdown, nextButton, prevButton):
+def updateMultiPolar(active_cell, selectedTrimester, table_data, trimesterFromDropdown):
     global df1
     studentSelectedIndex = active_cell['row'] if active_cell else 0
-    ctx = dash.callback_context
-    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    studentSelectedIndex = switchStudentsButtonLogic(studentSelectedIndex, button_id,0)
 
     trimester = trimesterFromDropdown if trimesterFromDropdown != currentTrimester else currentTrimester
 
@@ -224,7 +221,7 @@ def switchStudentsButtonLogic(studentSelectedIndex, button_id, plotIdentifier):
         elif button_id == "nextStudentButton":
             currentStudentOffset[plotIdentifier] += 1
         studentSelectedIndex += currentStudentOffset[plotIdentifier]
-        studentSelectedIndex = max(studentSelectedIndex,0)
+        studentSelectedIndex = max(studentSelectedIndex,-1)
         studentSelectedIndex = min(studentSelectedIndex,len(dfGetTrimester(currentRoom,currentTrimester))-1)
     print("studentSelectedIndex",studentSelectedIndex)
     currentStudentIndex = studentSelectedIndex
@@ -232,18 +229,18 @@ def switchStudentsButtonLogic(studentSelectedIndex, button_id, plotIdentifier):
 
 @app.callback(
         Output('studentLinePlot', 'figure'),
-        Input('nextStudentButton', 'n_clicks'),
-        Input('previousStudentButton', 'n_clicks'),
+        # Input('nextStudentButton', 'n_clicks'),
+        # Input('previousStudentButton', 'n_clicks'),
         Input('table', 'active_cell'),
         State('table', 'data'))
-def updateStudentLine(nextButton, prevButton, active_cell, table_data):
+def updateStudentLine(active_cell, table_data):
     global currentStudentIndex
     global currentStudentOffset
 
-    ctx = dash.callback_context
-    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    # ctx = dash.callback_context
+    # button_id = ctx.triggered[0]['prop_id'].split('.')[0]
     studentSelectedIndex = active_cell['row'] if active_cell else 0
-    studentSelectedIndex = switchStudentsButtonLogic(studentSelectedIndex, button_id,1)
+    # studentSelectedIndex = switchStudentsButtonLogic(studentSelectedIndex, button_id,1)
 
 
     dfConcat = pd.DataFrame()
@@ -272,17 +269,13 @@ def updateStudentLine(nextButton, prevButton, active_cell, table_data):
 
 @app.callback(
         Output('studentHybridPlot', 'figure'),
-        Input('nextStudentButton', 'n_clicks'),
-        Input('previousStudentButton', 'n_clicks'),
+        # Input('nextStudentButton', 'n_clicks'),
+        # Input('previousStudentButton', 'n_clicks'),
         Input('table', 'active_cell'),
         Input('plotTrimesterDropdown', 'value'),
         State('table', 'data'))
-def updateHybridPlot(nextButton, prevButton, active_cell,trimesterFromDropdown,table_data):
+def updateHybridPlot(active_cell,trimesterFromDropdown,table_data):
     studentSelectedIndex = active_cell['row'] 
-    ctx = dash.callback_context
-    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    studentSelectedIndex = switchStudentsButtonLogic(studentSelectedIndex, button_id,0)
-
     trimester = trimesterFromDropdown if trimesterFromDropdown != currentTrimester else currentTrimester
 
     srTrimesterMean = dfGetTrimestersMeans(currentRoom).loc[trimester]

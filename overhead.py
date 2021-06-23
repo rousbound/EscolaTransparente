@@ -15,7 +15,7 @@ print(df3201.keys())
 currentRoom = "3201"
 currentTrimester = "1T"
 currentStudentOffset = [0,0]
-currentStudentIndex = -999
+currentStudentIndex = 0
 
 
 tableToggleVariable = True

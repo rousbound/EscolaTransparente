@@ -470,8 +470,8 @@ app.layout = html.Div(children=[
     html.Div([tableRoomDropdown,
         tableTrimesterDropdown,
         toggleViewButton,
-        previousStudentButton,
-        nextStudentButton
+        # previousStudentButton,
+        # nextStudentButton
         ],
         className = 'row',
         style = {
@@ -531,7 +531,7 @@ app.layout = html.Div(children=[
                         ]),
                         html.Div([
                             html.H5(
-                                children='Violin e Rigged Plot - Atividades Extracurriculares da Turma',
+                                children='Violin e Ridge Line Plot - Atividades Extracurriculares da Turma',
                                 style={
                                     'textAlign': 'center',
                                     'color': '#9a83f4'
