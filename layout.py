@@ -494,10 +494,10 @@ app.layout = html.Div(children=[
                                 'color': '#7FDBFF'
                             }
                         ),
-                        html.Div([
-                            checkListActivities,
-                            lineChart
-                        ]), 
+                        #html.Div([
+                        #    checkListActivities,
+                        #    lineChart
+                        #]), 
                         html.Div([
                             html.H5(
                                 children='Stacked Bar Plot - Atividades Extracurriculares em Horas x Aluno',
@@ -508,16 +508,16 @@ app.layout = html.Div(children=[
                             ),
                             barPlotActivities
                         ]),
-                        html.Div([
-                            html.H5(
-                                children='Grouped Bar Plot - Atividades Extracurriculares em Horas x Aluno',
-                                style={
-                                    'textAlign': 'center',
-                                    'color': '#9a83f4'
-                                }
-                            ),
-                            groupedBPlot
-                        ]),
+                        #html.Div([
+                        #    html.H5(
+                        #        children='Grouped Bar Plot - Atividades Extracurriculares em Horas x Aluno',
+                        #        style={
+                        #            'textAlign': 'center',
+                        #            'color': '#9a83f4'
+                        #        }
+                        #    ),
+                        #    groupedBPlot
+                        #]),
                         html.Div([
                             html.Center([
                             html.H5(
@@ -529,16 +529,6 @@ app.layout = html.Div(children=[
                             ),
                             donutPlot])
                         ]),
-                        html.Div([
-                            html.H5(
-                                children='Violin e Ridge Line Plot - Atividades Extracurriculares da Turma',
-                                style={
-                                    'textAlign': 'center',
-                                    'color': '#9a83f4'
-                                }
-                            )
-                        ]),
-                        violinPlot, ridgedPlot
                     ]
                     ),
                 dcc.Tab(label='Aluno - Acadêmico', value='student',
@@ -547,17 +537,18 @@ app.layout = html.Div(children=[
                         studentDetail]
                     ),
                 dcc.Tab(label='Aluno - Pessoal', value='studentPersonal',
-                    #children = [studentPersonal]
-                    children = [clevelandPlot, individualDonutPlot,
+                    children = [
                     html.Div([
+                        html.Center([
                             html.H5(
-                                children='Hybrid e Radar Plot - Atividades Extracurriculares do Aluno',
+                                children='Hybrid Plot - Atividades Extracurriculares do Aluno',
                                 style={
                                     'textAlign': 'center',
                                     'color': '#9a83f4'
                                 }
-                            )
+                            ),
+                        individualHybridPlot])
                         ]),
-                        individualHybridPlot,individualRadarPlot]
+                        ]
                     )
                 ])])

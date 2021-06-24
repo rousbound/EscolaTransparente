@@ -35,8 +35,7 @@ def updateStudentHeader(active_cell):
 
 
 @app.callback(
-        [Output('multiPolar','figure'), Output('clevelandPlot','figure'), Output('indDonutPlot','figure'),
-        Output('hybridInd','figure'), Output('radarInd','figure')],
+        [Output('multiPolar','figure'), Output('hybridInd','figure')],
         [Input('table', 'active_cell'),
          Input('tableRoomDropdown', 'value'),
          Input('tableTrimesterDropdown', 'value'),
@@ -146,12 +145,15 @@ def updateMultiPolar(active_cell, selectedTrimester, table_data, trimesterFromDr
     indDonut = createIndividualDonut(actv, values, nome)
     hybridPlot = hybridPlotIndividual(actv, values, means, nome)
     radarPlot = plotRadarIndividual(actv, values, means, nome)
-    return multiPolar, clevPlot, indDonut, hybridPlot, radarPlot
+    return multiPolar, hybridPlot
 
 #,Output('checklist', 'value')
 @app.callback(
-        [Output('table', 'data'), Output('table','columns'), Output('plotTrimesterDropdown','value'), Output('linePlot','figure'),
-        Output('checklist', 'value'), Output('barPlotActivities','figure'), Output('groupedBarPlotActivities', 'figure')],
+        [Output('table', 'data'),
+        Output('table','columns'),
+        Output('plotTrimesterDropdown','value'),
+        Output('linePlot','figure'),
+        Output('barPlotActivities','figure')],
         [Input('tableRoomDropdown', 'value'), Input('tableTrimesterDropdown', 'value')])
 def tableRoomDropdownClickHandler(selectedRoom, selectedTrimester):
     global currentRoom
@@ -183,6 +185,7 @@ def tableRoomDropdownClickHandler(selectedRoom, selectedTrimester):
     personalActivities = dfGetPersonalActivities(currentRoom)
     df1 = personalActivities
     value= df1.columns[1:].tolist()[3:]
+    print("Value: ", value)
 
     figStackedBarPlot=getBarPlotActivities(personalActivities, personalActivities.columns[1:].tolist())
     classRoomLinePlot.update_layout(legend_title_text='Disciplinas')
@@ -190,7 +193,7 @@ def tableRoomDropdownClickHandler(selectedRoom, selectedTrimester):
     figGroupedBP = groupedBarPlot(personalActivities)
     
 
-    return  returnTableData, columns, selectedTrimester, classRoomLinePlot, value, figStackedBarPlot, figGroupedBP
+    return  returnTableData, columns, selectedTrimester, classRoomLinePlot, figStackedBarPlot#, figGroupedBP, value
 
 @app.callback(Output('table', 'style_table'),
                 #Input('table', 'active_cell'),
