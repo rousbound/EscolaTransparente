@@ -151,7 +151,8 @@ def updateMultiPolar(active_cell, selectedTrimester, table_data, trimesterFromDr
 
 #,Output('checklist', 'value')
 @app.callback(
-        [Output('table', 'data'), Output('table','columns'), Output('plotTrimesterDropdown','value'), Output('linePlot','figure'), Output('barPlotActivities','figure')],
+        [Output('table', 'data'), Output('table','columns'), Output('plotTrimesterDropdown','value'), Output('linePlot','figure'),
+         Output('barPlotActivities','figure'), Output('donutPlot','figure')],
         [Input('tableRoomDropdown', 'value'), Input('tableTrimesterDropdown', 'value')])
 def tableRoomDropdownClickHandler(selectedRoom, selectedTrimester):
     global currentRoom
@@ -185,12 +186,13 @@ def tableRoomDropdownClickHandler(selectedRoom, selectedTrimester):
     value= df1.columns[1:].tolist()[3:]
 
     figStackedBarPlot=getBarPlotActivities(personalActivities, personalActivities.columns[1:].tolist())
+    figDonutPlot = createDonutPlot(personalActivities)
 
     figGroupedBP = groupedBarPlot(personalActivities)
     
 
     #return  returnTableData, columns, selectedTrimester, plotLineGraph, value, figStackedBarPlot, figGroupedBP
-    return  returnTableData, columns, selectedTrimester, plotLineGraph, figStackedBarPlot
+    return  returnTableData, columns, selectedTrimester, plotLineGraph, figStackedBarPlot, figDonutPlot
 
 @app.callback(Output('table', 'style_table'),
                 #Input('table', 'active_cell'),
