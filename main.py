@@ -34,8 +34,7 @@ def updateStudentHeader(active_cell, nextButton, prevButton):
 
 
 @app.callback(
-        [Output('multiPolar','figure'), Output('clevelandPlot','figure'), Output('indDonutPlot','figure'),
-        Output('hybridInd','figure'), Output('radarInd','figure')],
+        [Output('multiPolar','figure'), Output('hybridInd','figure')],
         [Input('table', 'active_cell'),
          Input('tableRoomDropdown', 'value'),
          Input('tableTrimesterDropdown', 'value'),
@@ -148,12 +147,11 @@ def updateMultiPolar(active_cell, selectedTrimester, table_data, trimesterFromDr
     indDonut = createIndividualDonut(actv, values, nome)
     hybridPlot = hybridPlotIndividual(actv, values, means, nome)
     radarPlot = plotRadarIndividual(actv, values, means, nome)
-    return multiPolar, clevPlot, indDonut, hybridPlot, radarPlot
+    return multiPolar, hybridPlot
 
 #,Output('checklist', 'value')
 @app.callback(
-        [Output('table', 'data'), Output('table','columns'), Output('plotTrimesterDropdown','value'), Output('linePlot','figure'),
-        Output('checklist', 'value'), Output('barPlotActivities','figure'), Output('groupedBarPlotActivities', 'figure')],
+        [Output('table', 'data'), Output('table','columns'), Output('plotTrimesterDropdown','value'), Output('linePlot','figure'), Output('barPlotActivities','figure')],
         [Input('tableRoomDropdown', 'value'), Input('tableTrimesterDropdown', 'value')])
 def tableRoomDropdownClickHandler(selectedRoom, selectedTrimester):
     global currentRoom
@@ -191,7 +189,8 @@ def tableRoomDropdownClickHandler(selectedRoom, selectedTrimester):
     figGroupedBP = groupedBarPlot(personalActivities)
     
 
-    return  returnTableData, columns, selectedTrimester, plotLineGraph, value, figStackedBarPlot, figGroupedBP
+    #return  returnTableData, columns, selectedTrimester, plotLineGraph, value, figStackedBarPlot, figGroupedBP
+    return  returnTableData, columns, selectedTrimester, plotLineGraph, figStackedBarPlot
 
 @app.callback(Output('table', 'style_table'),
                 #Input('table', 'active_cell'),
